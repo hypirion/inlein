@@ -9,14 +9,10 @@
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
   :main inlein.client.Main
   :scm {:dir ".."}
-  :aliases {"test" "junit"
-            "javadoc" ["shell" "javadoc" "-d" "javadoc/inlein-${:version}"
+  :aliases {"javadoc" ["shell" "javadoc" "-d" "javadoc/inlein-${:version}"
                        "-sourcepath" "src" "inlein.client"]}
-  :plugins [[lein-shell "0.5.0"]
-            [lein-junit "1.1.8"]]
+  :plugins [[lein-shell "0.5.0"]]
   :uberjar-name "inlein-%s.jar"
   ;; to avoid complaints from Leiningen
   :profiles {:uberjar {:aot :all}
-             :dev {:java-source-paths ["test"]
-                   :junit ["test"]
-                   :dependencies [[junit/junit "4.11"]]}})
+             :dev {:dependencies [[org.clojure/clojure "1.8.0"]]}})
