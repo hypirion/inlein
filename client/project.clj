@@ -12,6 +12,7 @@
   :aliases {"javadoc" ["shell" "javadoc" "-d" "javadoc/inlein-${:version}"
                        "-sourcepath" "src" "inlein.client"]}
   :plugins [[lein-shell "0.5.0"]]
+  :jar-name "inlein-no-deps-%s.jar"
   :uberjar-name "inlein-%s.jar"
   ;; to avoid complaints from Leiningen
   :profiles {:uberjar {:aot :all}
