@@ -58,12 +58,26 @@
         "20:200"
         "5:four"))))
 
+(deftest read-list
+  (let [read-lst (fn [s] (.readList (bencode-reader s)))]
+    (testing "correctly encoded bencode lists"
+      (are [x y] (= x (read-lst y))
+        [] "le"
+        [1] "li1ee"
+        [1 2 3] "li1ei2ei3ee"
+        [2 "foo"] "li2e3:fooe"
+        [[]] "llee"
+        [[] [1 2]] "lleli1ei2eee"
+        [["foo"] "bar" ["baz"]] "ll3:fooe3:barl3:bazee"))))
+
 (deftest read-arbitrary
-(let [read-val (fn [s] (.read (bencode-reader s)))]
+  (let [read-val (fn [s] (.read (bencode-reader s)))]
     (testing "that we read correct bencode type with .read"
       (are [x y] (= x (read-val y))
-        ""       "0:"
-        "plaît"  "6:plaît"
-        10       "i10e"
-        0        "i0e"
-        -100     "i-100e"))))
+        ""         "0:"
+        "plaît"    "6:plaît"
+        10         "i10e"
+        0          "i0e"
+        -100       "i-100e"
+        [1]        "li1ee"
+        [[] [1 2]] "lleli1ei2eee"))))

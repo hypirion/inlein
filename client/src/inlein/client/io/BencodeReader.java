@@ -1,6 +1,7 @@
 package inlein.client.io;
 
 import java.io.*;
+import java.util.*;
 
 public final class BencodeReader implements Closeable {
     private PushbackInputStream input;
@@ -109,11 +110,27 @@ public final class BencodeReader implements Closeable {
         return new String(bs, "UTF-8");
     }
 
+    public List<Object> readList() throws IOException, BencodeReadException {
+        int initial = forceRead();
+        if (initial != 'l') {
+            throw new BencodeReadException("Bencoded list must start with 'l', not '%c'",
+                                           initial);
+        }
+        ArrayList<Object> al = new ArrayList<Object>();
+        while (peek() != 'e') {
+            al.add(read());
+        }
+        input.read(); // remove 'e' that we peeked
+        return al;
+    }
+
     public Object read() throws IOException, BencodeReadException {
         int t = peek();
         switch (t) {
         case 'i':
             return readLong();
+        case 'l':
+            return readList();
         default:
             return readString();
         }
