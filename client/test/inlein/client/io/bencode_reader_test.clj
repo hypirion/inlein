@@ -10,7 +10,6 @@
 (defn- bencode-reader [^String str]
   (BencodeReader. (bais str)))
 
-
 (deftest read-integers
   (let [read-long (fn [s] (.readLong (bencode-reader s)))]
     (testing "correctly encoded bencode integers"
@@ -34,3 +33,27 @@
       (is (thrown? EOFException (read-long "")))
       (is (thrown? EOFException (read-long "i100")))
       (is (thrown? EOFException (read-long "i-12131233231"))))))
+
+(deftest read-strings
+  (let [read-str (fn [s] (.readString (bencode-reader s)))]
+    (testing "correctly encoded bencode strings"
+      (are [x y] (= x (read-str y))
+        ""       "0:"
+        ":"      "1::"
+        "ie"     "2:ie"
+        "foo"    "3:foo"
+        "3:foo"  "5:3:foo"
+        "plaît"  "6:plaît"
+        "banana" "6:banana"))
+    (testing "incorrectly encoded bencode strings"
+      (are [val re] (thrown-with-msg? BencodeReadException re
+                                      (read-str val))
+        ":fofoo" #"must contain at least one digit"
+        "-501AS" #"when reading bencode-length"
+        "50-"    #"when reading bencode-length"
+        "hootoo" #"when reading bencode-length")
+      (are [val] (thrown? EOFException (read-str val))
+        "1:"
+        "500:foo"
+        "20:200"
+        "5:four"))))

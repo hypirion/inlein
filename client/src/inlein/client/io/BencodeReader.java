@@ -52,4 +52,51 @@ public final class BencodeReader implements Closeable {
             }
         }
     }
+
+    // len is a positive ascii base-10 encoded integer, immediately followed by
+    // a colon
+    private int readLen() throws IOException, BencodeReadException {
+        boolean readDigit = false;
+        int val = 0;
+        while (true) {
+            int cur = forceRead();
+            if ('0' <= cur && cur <= '9') {
+                readDigit = true;
+                val *= 10;
+                val += cur - '0';
+            }
+            else if (cur == ':') {
+                if (readDigit) {
+                    return val;
+                } else {
+                    throw new BencodeReadException("Bencode-length must contain at least one digit");
+                }
+            }
+            else {
+                throw new BencodeReadException("Unexpected character '%c' when reading bencode-length of string",
+                                               cur);
+            }
+        }
+    }
+
+    public String readString() throws IOException, BencodeReadException {
+        int len = readLen();
+        // now read until we have the entire thing
+        byte[] bs = new byte[len];
+        if (len == 0) { // edge case where last value is an empty string
+            return "";
+        }
+        int off = input.read(bs);
+        if (off == -1) {
+            throw new EOFException();
+        }
+        while (off != len) {
+            int more = input.read(bs, off, len - off);
+            if (more == -1) {
+                throw new EOFException();
+            }
+            off += more;
+        }
+        return new String(bs, "UTF-8");
+    }
 }
