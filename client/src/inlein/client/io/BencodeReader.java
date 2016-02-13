@@ -118,19 +118,48 @@ public final class BencodeReader implements Closeable {
         }
         ArrayList<Object> al = new ArrayList<Object>();
         while (peek() != 'e') {
-            al.add(read());
+            Object val = read();
+            if (val == null) {
+                throw new EOFException();
+            }
+            al.add(val);
         }
-        input.read(); // remove 'e' that we peeked
+        forceRead(); // remove 'e' that we peeked
         return al;
     }
 
+    public Map<String, Object> readDict() throws IOException, BencodeReadException {
+        int initial = forceRead();
+        if (initial != 'd') {
+            throw new BencodeReadException("Bencoded dict must start with 'd', not '%c'",
+                                           initial);
+        }
+        HashMap<String, Object> hm = new HashMap<String, Object>();
+        while (peek() != 'e') {
+            String key = readString();
+            Object val = read();
+            if (val == null) {
+                throw new EOFException();
+            }
+            hm.put(key, val);
+        }
+        forceRead(); // read 'e' that we peeked
+        return hm;
+    }
+
     public Object read() throws IOException, BencodeReadException {
-        int t = peek();
+        int t = input.read();
+        if (t == -1) {
+            return null;
+        }
+        input.unread(t);
         switch (t) {
         case 'i':
             return readLong();
         case 'l':
             return readList();
+        case 'd':
+            return readDict();
         default:
             return readString();
         }

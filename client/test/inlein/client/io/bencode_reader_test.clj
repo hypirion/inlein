@@ -4,11 +4,23 @@
   (:import (inlein.client.io BencodeReader BencodeReadException)
            (java.io ByteArrayInputStream EOFException)))
 
-(defn- bais [^String str]
+(defn- bais [str]
   (ByteArrayInputStream. (.getBytes str "UTF-8")))
 
-(defn- bencode-reader [^String str]
+(defn- bencode-reader [str]
   (BencodeReader. (bais str)))
+
+(defn- bencode-vals
+  "Returns a lazy sequence of all the values in the bencoded string"
+  [str]
+  (let [rdr (bencode-reader str)]
+    (take-while #(not (nil? %))
+                (repeatedly #(.read rdr)))))
+
+(defn- bencode-val
+  "Returns the first bencode value in the string, or nil if none were found"
+  [str]
+  (first (bencode-vals str)))
 
 (deftest read-integers
   (let [read-long (fn [s] (.readLong (bencode-reader s)))]
@@ -70,14 +82,32 @@
         [[] [1 2]] "lleli1ei2eee"
         [["foo"] "bar" ["baz"]] "ll3:fooe3:barl3:bazee"))))
 
+(deftest read-dict
+  (let [read-dict (fn [s] (.readDict (bencode-reader s)))]
+    (testing "correctly bencoded dicts"
+      (are [x y]  (= x (read-dict y))
+          {} "de"
+          {"foo" "bar"} "d3:foo3:bare"
+          {"foo" [{}]} "d3:fooldeee"
+          {"x" {"y" {"z" 1}}} "d1:xd1:yd1:zi1eeee"))))
+
 (deftest read-arbitrary
-  (let [read-val (fn [s] (.read (bencode-reader s)))]
-    (testing "that we read correct bencode type with .read"
-      (are [x y] (= x (read-val y))
-        ""         "0:"
-        "plaît"    "6:plaît"
-        10         "i10e"
-        0          "i0e"
-        -100       "i-100e"
-        [1]        "li1ee"
-        [[] [1 2]] "lleli1ei2eee"))))
+  (testing "that we read correct bencode type with .read"
+    (are [x y] (= x (bencode-val y))
+      ""         "0:"
+      "plaît"    "6:plaît"
+      10         "i10e"
+      0          "i0e"
+      -100       "i-100e"
+      [1]        "li1ee"
+      [[] [1 2]] "lleli1ei2eee"
+      {"foo" 1}  "d3:fooi1ee"
+      {"foo" [{}]} "d3:fooldeee"
+      {"x" {"y" {"z" 1}}} "d1:xd1:yd1:zi1eeee")))
+
+(deftest read-multiple
+  (testing "that a stream of bencoded values can be read"
+    (are [x y] (= x (bencode-vals y))
+      [] ""
+      [[]] "le"
+      [{} [] 0 "hello world!"] "delei0e12:hello world!")))
