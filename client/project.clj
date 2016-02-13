@@ -3,7 +3,7 @@
   :url "https://github.com/hyPiRion/inlein"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies []
+  :dependencies [[com.hypirion/bencode "0.1.0"]]
   :source-paths []
   :java-source-paths ["src"]
   :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
