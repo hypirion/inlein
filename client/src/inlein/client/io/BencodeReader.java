@@ -3,10 +3,10 @@ package inlein.client.io;
 import java.io.*;
 
 public final class BencodeReader implements Closeable {
-    private InputStream input;
+    private PushbackInputStream input;
 
     public BencodeReader(InputStream input) {
-        this.input = input;
+        this.input = new PushbackInputStream(input, 1);
     }
 
     public void close() throws IOException {
@@ -18,6 +18,15 @@ public final class BencodeReader implements Closeable {
         if (val == -1) {
             throw new EOFException();
         }
+        return val;
+    }
+
+    private int peek() throws IOException {
+        int val = input.read();
+        if (val == -1) {
+            throw new EOFException();
+        }
+        input.unread(val);
         return val;
     }
 
@@ -98,5 +107,15 @@ public final class BencodeReader implements Closeable {
             off += more;
         }
         return new String(bs, "UTF-8");
+    }
+
+    public Object read() throws IOException, BencodeReadException {
+        int t = peek();
+        switch (t) {
+        case 'i':
+            return readLong();
+        default:
+            return readString();
+        }
     }
 }

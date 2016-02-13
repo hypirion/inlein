@@ -57,3 +57,13 @@
         "500:foo"
         "20:200"
         "5:four"))))
+
+(deftest read-arbitrary
+(let [read-val (fn [s] (.read (bencode-reader s)))]
+    (testing "that we read correct bencode type with .read"
+      (are [x y] (= x (read-val y))
+        ""       "0:"
+        "plaît"  "6:plaît"
+        10       "i10e"
+        0        "i0e"
+        -100     "i-100e"))))
