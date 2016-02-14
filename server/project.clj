@@ -4,7 +4,13 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [com.hypirion/bencode "0.1.0"]]
-  :main inlein.server
+                 [com.stuartsierra/component "0.3.0"]
+                 [com.hypirion/bencode "0.1.1"]]
+  :main inlein.server.system
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:dependencies [[reloaded.repl "0.2.1"]
+                                  [org.clojure/tools.namespace "0.2.11"]
+                                  [org.clojure/tools.nrepl "0.2.12"]]
+                   :source-paths ["dev"]
+                   :repl-options {:init-ns user}}})

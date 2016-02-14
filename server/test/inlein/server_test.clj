@@ -1,6 +1,5 @@
 (ns inlein.server-test
-  (:require [clojure.test :refer :all]
-            [inlein.server :refer :all]))
+  (:require [clojure.test :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."
