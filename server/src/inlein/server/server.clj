@@ -1,5 +1,6 @@
 (ns inlein.server.server
-  (:require [com.stuartsierra.component :as component])
+  (:require [com.stuartsierra.component :as component]
+            [clojure.java.io :as io])
   (:import (java.net ServerSocket SocketTimeoutException)
            (java.io BufferedInputStream)
            (com.hypirion.bencode BencodeReader BencodeWriter))
@@ -62,7 +63,8 @@
           (.start (Thread. #(do-request client-sock) "handle-request")))
         (catch SocketTimeoutException _))
       (recur))
-    (catch InterruptedException _)))
+    (catch InterruptedException _
+      (println "Server interrupted"))))
 
 (defn -main
   [& args]
@@ -79,14 +81,19 @@
                    (.setSoTimeout 100))
             thread (doto (Thread. #(run-server sock))
                      (.start))]
+        (.mkdirs (io/file (:inlein-home cfg)))
         (println "server listening on" (.getLocalPort sock))
+        (spit (io/file (:inlein-home cfg) "port")
+              (str (.getLocalPort sock)))
+        (.deleteOnExit (io/file (:inlein-home cfg) "port"))
         (assoc this
                :socket sock
                :socket-thread thread))))
   (stop [this]
     (when socket-thread
       (.interrupt (:socket-thread this))
-      (.join (:socket-thread this)))
+      (.join (:socket-thread this))
+      (io/delete-file (io/file (:inlein-home cfg) "port") :silently))
     (assoc this :socket nil :socket-thread nil)))
 
 (defn inlein-server [config]
