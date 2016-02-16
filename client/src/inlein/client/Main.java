@@ -58,7 +58,7 @@ public class Main {
         if (!p.toFile().exists()) {
             return null;
         }
-        byte[] strinPort = Files.readAllBytes(p);
+        byte[] stringPort = Files.readAllBytes(p);
         return Integer.parseInt(new String(stringPort));
     }
 }
