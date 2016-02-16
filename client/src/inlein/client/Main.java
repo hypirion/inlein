@@ -2,17 +2,20 @@ package inlein.client;
 
 import java.util.*;
 import java.io.*;
+import java.nio.file.*;
 import java.net.*;
 import com.hypirion.bencode.*;
 
 public class Main {
     public static void main(String[] args) throws IOException, BencodeReadException {
-        if (args.length != 2) {
+        Integer port = inleinPort();
+        if (port == null) {
+            System.out.println("Inlein server not running!");
             System.exit(1);
         }
 
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
+        String hostName = "localhost";
+        int portNumber = (int)port;
 
         try (
             Socket sock = new Socket(hostName, portNumber);
@@ -36,5 +39,26 @@ public class Main {
                 hostName);
             System.exit(1);
         }
+    }
+
+    public static String inleinHome() {
+        String res = System.getenv("INLEIN_HOME");
+        if (res == null) {
+            res = new File(System.getProperty("user.home"), ".inlein").getAbsolutePath();
+        }
+        return res;
+    }
+
+    /**
+     * Returns the inlein server's port. If the value returned is
+     * <code>null</code>, then the server is not running.
+     */
+    public static Integer inleinPort() throws IOException {
+        Path p = Paths.get(inleinHome(), "port");
+        if (!p.toFile().exists()) {
+            return null;
+        }
+        byte[] strinPort = Files.readAllBytes(p);
+        return Integer.parseInt(new String(stringPort));
     }
 }

@@ -1,6 +1,7 @@
 (ns inlein.server.system
   (:require [com.stuartsierra.component :as component]
             [inlein.server.server :refer [inlein-server]]
+            [inlein.server.utils :as utils]
             [clojure.java.io :as io])
   (:gen-class))
 
@@ -10,8 +11,6 @@
    :server (inlein-server config)))
 
 (defn -main [& args]
-  (let [inlein-home (or
-                     (get (System/getenv) "INLEIN_HOME")
-                     (.getAbsolutePath (io/file (System/getProperty "user.home") ".inlein")))]
-    (component/start (new-system {:port 0
-                                  :inlein-home inlein-home}))))
+  (component/start
+   (new-system {:port 0
+                :inlein-home (utils/inlein-home)})))
