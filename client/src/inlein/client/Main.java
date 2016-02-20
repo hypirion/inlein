@@ -6,8 +6,35 @@ import java.nio.file.*;
 import java.net.*;
 import com.hypirion.bencode.*;
 
+import inlein.client.tasks.*;
+
 public class Main {
     public static void main(String[] args) throws IOException, BencodeReadException {
+        String task;
+        String[] taskArgs;
+        if (args.length == 0) {
+            task = "--help";
+            taskArgs = new String[0];
+        }
+        else if (! args[0].startsWith("--")) {
+            task = "--run";
+            taskArgs = args;
+        } else {
+            task = args[0];
+            taskArgs = Arrays.copyOfRange(args, 1, args.length);
+        }
+
+        Task t = tasks.get(task);
+        if (t == null) {
+            System.out.println("Inlein has no task with name " + task);
+            System.exit(1);
+        }
+
+        t.run(null, taskArgs);
+        System.exit(0);
+
+        Version.instance.run(null, args);
+        System.exit(1);
         Integer port = inleinPort();
         if (port == null) {
             System.out.println("Inlein server not running!");
@@ -41,6 +68,10 @@ public class Main {
         }
     }
 
+
+    /**
+     * Returns the home directory to inlein.
+     */
     public static String inleinHome() {
         String res = System.getenv("INLEIN_HOME");
         if (res == null) {
@@ -60,5 +91,13 @@ public class Main {
         }
         byte[] stringPort = Files.readAllBytes(p);
         return Integer.parseInt(new String(stringPort));
+    }
+
+    public static final TreeMap<String, Task> tasks = new TreeMap();
+
+    static {
+        Help h = new Help(tasks);
+        tasks.put(h.taskname, h);
+        tasks.put(Version.instance.taskname, Version.instance);
     }
 }
