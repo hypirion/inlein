@@ -15,6 +15,11 @@ public abstract class Task implements Comparable<Task> {
         return this.taskname.compareTo(that.taskname);
     }
 
+    /**
+     * Runs the Task function. {@link ServerConnection} may be null, in which
+     * case it is the task's responsibility to ensure that it is initialised --
+     * this can be done via {@link ServerConnection#ensureInit(ServerConnection)}.
+     */
     public abstract void run(ServerConnection conn, String[] args);
 
     protected void assertArgcount(String[] args, int expected) {
