@@ -33,10 +33,21 @@
 (defn- bencode-write [^BencodeWriter out val]
   (.write out (transform val)))
 
+(defn- write-ack [^BencodeWriter out msg]
+  (bencode-write out {:type "ack" :op (:op msg)}))
+
+(defn- warn [^BencodeWriter out ^String msg]
+  (bencode-write out {:type "log"
+                      :level "warn"
+                      :timestamp "zero"
+                      :msg msg}))
+
 (defmulti handle-request (fn [operation in out] (:op operation)))
 
 (defmethod handle-request "ping" [op in out]
-  (bencode-write out {:ret "PONG"}))
+  (bencode-write out {:type "response"
+                      :returns "ping"
+                      :msg "PONG"}))
 
 (defmethod handle-request :default [operation in out]
   (println "unknown op!")
@@ -51,6 +62,7 @@
     (when-not (.. client-sock getInetAddress isSiteLocalAddress)
       (let [first-op (bencode-read in)]
         (println "first op:" first-op)
+        (write-ack out first-op)
         (handle-request first-op in out)))))
 
 (defn run-server [server-socket]
