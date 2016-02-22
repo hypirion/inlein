@@ -52,6 +52,9 @@ public final class ServerConnection implements AutoCloseable {
         if (! ret.get("type").equals("response")) {
             throw new ProtocolException();
         }
+        if (ret.get("error") instanceof String) {
+            throw new Exception((String)ret.get("error"));
+        }
         return ret;
     }
 

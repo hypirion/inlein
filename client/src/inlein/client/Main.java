@@ -41,5 +41,6 @@ public class Main {
         tasks.put(h.taskname, h);
         tasks.put(Version.instance.taskname, Version.instance);
         tasks.put(Ping.instance.taskname, Ping.instance);
+        tasks.put(Run.instance.taskname, Run.instance);
     }
 }
