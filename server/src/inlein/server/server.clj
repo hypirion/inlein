@@ -36,6 +36,12 @@
 (defn- write-ack [^BencodeWriter out msg]
   (bencode-write out {:type "ack" :op (:op msg)}))
 
+(defn- write-response [^BencodeWriter out op resp]
+  (bencode-write out
+                 (merge {:type "response"
+                         :returns (:op op)}
+                        resp)))
+
 (defn- warn [^BencodeWriter out ^String msg]
   (bencode-write out {:type "log"
                       :level "warn"
@@ -45,13 +51,12 @@
 (defmulti handle-request (fn [operation in out] (:op operation)))
 
 (defmethod handle-request "ping" [op in out]
-  (bencode-write out {:type "response"
-                      :returns "ping"
-                      :msg "PONG"}))
+  (write-response out op {:msg "PONG"}))
 
-(defmethod handle-request :default [operation in out]
-  (println "unknown op!")
-  (bencode-write out {:ret "unknown operation"}))
+(defmethod handle-request :default [op in out]
+  (write-response out op
+                  {:error (str "Inlein server is not familiar with the operation "
+                               (:op op))}))
 
 (defn- do-request [client-sock]
   (with-open [client-sock client-sock
