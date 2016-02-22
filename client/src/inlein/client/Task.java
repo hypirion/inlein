@@ -20,7 +20,7 @@ public abstract class Task implements Comparable<Task> {
      * case it is the task's responsibility to ensure that it is initialised --
      * this can be done via {@link ServerConnection#ensureInit(ServerConnection)}.
      */
-    public abstract void run(ServerConnection conn, String[] args);
+    public abstract void run(ServerConnection conn, String[] args) throws Exception;
 
     protected void assertArgcount(String[] args, int expected) {
         if (args.length != expected) {

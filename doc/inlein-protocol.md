@@ -64,7 +64,8 @@ After a request is sent, the server will immediately respond with an ack:
  :op "request"}
 ```
 
-A client can perform multiple requests in the same TCP stream.
+A client can perform multiple requests in the same TCP stream, but should for
+its own sanity do them sequentially.
 
 ### JVM-params
 
@@ -80,7 +81,7 @@ The response – if successful – will be on the shape
 
 ```clj
 {:type "response"
- :returns "classpath"
+ :returns "jvm-params"
  :classpath ["a" "b" "c"]
  :jvm-args ["-Xms512m"]}
 ```
