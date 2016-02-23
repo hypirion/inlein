@@ -6,11 +6,16 @@
   (:gen-class))
 
 ;; TODO: consider meta-merging.
-(defn new-system [config]
-  (component/system-map
-   :server (inlein-server config)))
+(defn new-system-atom [config]
+  (let [system-atom (atom nil)
+        system (component/system-map
+                :server (inlein-server config system-atom))]
+    (reset! system-atom system)
+    system-atom))
 
 (defn -main [& args]
-  (component/start
-   (new-system {:port 0
-                :inlein-home (utils/inlein-home)})))
+  (let [system-atom (new-system-atom
+                     {:port 0
+                      :inlein-home (utils/inlein-home)})]
+    (swap! system-atom component/start)))
+

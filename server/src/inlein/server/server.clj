@@ -3,8 +3,7 @@
             [clojure.java.io :as io])
   (:import (java.net ServerSocket SocketTimeoutException)
            (java.io BufferedInputStream)
-           (com.hypirion.bencode BencodeReader BencodeWriter))
-  (:gen-class))
+           (com.hypirion.bencode BencodeReader BencodeWriter)))
 
 (defn- untransform
   [val]
@@ -53,12 +52,16 @@
 (defmethod handle-request "ping" [op in out]
   (write-response out op {:msg "PONG"}))
 
+(defmethod handle-request "shutdown" [op in out]
+  (write-response out op {:msg "ok, shutting down"})
+  ::shutdown)
+
 (defmethod handle-request :default [op in out]
   (write-response out op
                   {:error (str "Inlein server is not familiar with the operation "
                                (:op op))}))
 
-(defn- do-request [client-sock]
+(defn- do-request [system-atom client-sock]
   (with-open [client-sock client-sock
               out (BencodeWriter. (.getOutputStream client-sock))
               in (-> (.getInputStream client-sock)
@@ -68,35 +71,33 @@
       (let [first-op (bencode-read in)]
         (println "first op:" first-op)
         (write-ack out first-op)
-        (handle-request first-op in out)))))
+        (let [res (handle-request first-op in out)]
+          (println res)
+          (case res
+            ::shutdown (.start (Thread. #(swap! system-atom component/stop)))
+            nil))))))
 
-(defn run-server [server-socket]
+(defn run-server [system-atom server-socket]
   (try
     (loop []
       (when (.isInterrupted (Thread/currentThread))
         (throw (InterruptedException.)))
       (try
         (let [client-sock (.accept server-socket)]
-          (.start (Thread. #(do-request client-sock) "handle-request")))
+          (.start (Thread. #(do-request system-atom client-sock) "handle-request")))
         (catch SocketTimeoutException _))
       (recur))
     (catch InterruptedException _
       (println "Server interrupted"))))
 
-(defn -main
-  [& args]
-  (let [server-socket (ServerSocket. 0)]
-    (println "server listening on" (.getLocalPort server-socket))    
-    (run-server server-socket)))
-
-(defrecord InleinServer [cfg socket socket-thread]
+(defrecord InleinServer [cfg system-atom socket socket-thread]
   component/Lifecycle
   (start [this]
     (if socket-thread
       this
       (let [sock (doto (ServerSocket. (:port cfg))
                    (.setSoTimeout 100))
-            thread (doto (Thread. #(run-server sock))
+            thread (doto (Thread. #(run-server system-atom sock))
                      (.start))]
         (.mkdirs (io/file (:inlein-home cfg)))
         (println "server listening on" (.getLocalPort sock))
@@ -113,5 +114,5 @@
       (io/delete-file (io/file (:inlein-home cfg) "port") :silently))
     (assoc this :socket nil :socket-thread nil)))
 
-(defn inlein-server [config]
-  (->InleinServer config nil nil))
+(defn inlein-server [config system-atom]
+  (->InleinServer config system-atom nil nil))
