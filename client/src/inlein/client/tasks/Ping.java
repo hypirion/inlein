@@ -17,6 +17,13 @@ public final class Ping extends Task {
     }
 
     public void run(ServerConnection conn, String[] args) throws Exception {
+        if (conn == null) {
+            conn = new ServerConnection();
+        }
+        if (! conn.tryConnect()) {
+            System.out.println("Inlein server not running!");
+            System.exit(1);
+        }
         assertArgcount(args, 0);
         conn = ServerConnection.ensureConnected(conn);
         Map<String, Object> req = new HashMap();

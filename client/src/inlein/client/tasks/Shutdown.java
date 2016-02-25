@@ -20,10 +20,14 @@ public final class Shutdown extends Task {
             System.out.println("--shutdown takes 0 arguments");
             System.exit(1);
         }
-        conn = ServerConnection.ensureConnected(conn);
+        if (conn == null) {
+            conn = new ServerConnection();
+        }
+        if (! conn.tryConnect()) {
+            System.exit(0);
+        }
         Map<String, Object> req = new HashMap();
         req.put("op", "shutdown");
         Map<String, Object> reply = conn.sendRequest(req);
-        System.out.println(reply);
     }
 }

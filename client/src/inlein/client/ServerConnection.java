@@ -12,19 +12,27 @@ public final class ServerConnection implements AutoCloseable {
     private BencodeWriter out;
     private BencodeReader in;
     private LogPrinter lp;
+    private boolean connected;
 
     public static ServerConnection ensureConnected(ServerConnection sc) throws Exception {
         if (sc == null) {
-            return new ServerConnection();
+            sc = new ServerConnection();
+        }
+        if (! sc.tryConnect()) {
+            // TODO: Try to start inlein server.
+            System.out.println("Inlein server not running!");
+            System.exit(1);
         }
         return sc;
     }
 
-    public ServerConnection() throws Exception {
+    public boolean tryConnect() throws Exception {
+        if (connected) {
+            return true;
+        }
         Integer port = inleinPort();
         if (port == null) {
-            System.out.println("Inlein server not running!");
-            System.exit(1);
+            return false;
         }
 
         String hostName = "localhost";
@@ -34,11 +42,14 @@ public final class ServerConnection implements AutoCloseable {
         out = new BencodeWriter(sock.getOutputStream());
         in = new BencodeReader(new BufferedInputStream(sock.getInputStream()));
         lp = new LogPrinter(LogPrinter.Level.WARN);
+        connected = true;
+        return true;
     }
 
-    // A response is what exactly? A Map<String, Object>?
-    // And the same is a request, right?
-    
+    public ServerConnection() {
+        connected = false;
+    }
+
     public Map<String, Object> sendRequest(Map<String, Object> request) throws Exception {
         out.write(request);
         Map<String, Object> ack = readNonlog();
@@ -77,6 +88,7 @@ public final class ServerConnection implements AutoCloseable {
         sock.close();
         out.close();
         in.close();
+        connected = false;
     }
 
 
