@@ -3,9 +3,9 @@
 (I am not a protocol designer btw, this is all randomly created)
 
 Synchronous Bencode over a TCP stream. The client first sends a _request_ to the
-server, and a _response_ is returned from the server.
+daemon, and a _response_ is returned from the daemon.
 
-Data transferred between client and server is always bencode dicts. The server
+Data transferred between client and daemon is always bencode dicts. The daemon
 may send log _messages_ before or after responses are sent.
 
 ## Log Messages
@@ -57,7 +57,7 @@ on the shape
 
 As a result, extra fields cannot be named `error`.
 
-After a request is sent, the server will immediately respond with an ack:
+After a request is sent, the daemon will immediately respond with an ack:
 
 ```clj
 {:type "ack"
@@ -69,7 +69,7 @@ its own sanity do them sequentially.
 
 ### JVM-params
 
-The most common use of the inlein server is to request dependency and
+The most common use of the inlein daemon is to request dependency and
 jvm argument extraction. This can be done by issuing the command
 
 ```clj

@@ -43,5 +43,6 @@ public class Main {
         tasks.put(Ping.instance.taskname, Ping.instance);
         tasks.put(Run.instance.taskname, Run.instance);
         tasks.put(Shutdown.instance.taskname, Shutdown.instance);
+        tasks.put(StartDaemon.instance.taskname, StartDaemon.instance);
     }
 }

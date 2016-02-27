@@ -100,10 +100,10 @@
             thread (doto (Thread. #(run-server system-atom sock))
                      (.start))]
         (.mkdirs (io/file (:inlein-home cfg)))
-        (println "server listening on" (.getLocalPort sock))
         (spit (io/file (:inlein-home cfg) "port")
               (str (.getLocalPort sock)))
         (.deleteOnExit (io/file (:inlein-home cfg) "port"))
+        (println "Inlein server listening on" (.getLocalPort sock))
         (assoc this
                :socket sock
                :socket-thread thread))))
