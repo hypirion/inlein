@@ -1,4 +1,4 @@
-(ns inlein.server.utils
+(ns inlein.daemon.utils
   (:require [clojure.java.io :as io]))
 
 (defn inlein-home

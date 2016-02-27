@@ -1,7 +1,7 @@
-(ns inlein.server.system
+(ns inlein.daemon.system
   (:require [com.stuartsierra.component :as component]
-            [inlein.server.server :refer [inlein-server]]
-            [inlein.server.utils :as utils]
+            [inlein.daemon.server :refer [inlein-server]]
+            [inlein.daemon.utils :as utils]
             [clojure.java.io :as io])
   (:gen-class))
 

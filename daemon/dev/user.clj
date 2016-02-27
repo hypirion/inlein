@@ -4,8 +4,8 @@
             [clojure.java.io :as io]
             [clojure.tools.namespace.repl :refer [disable-reload! refresh]]
             [com.stuartsierra.component :as component]
-            [inlein.server.system :refer [new-system-atom]]
-            [inlein.server.utils :as utils]))
+            [inlein.daemon.system :refer [new-system-atom]]
+            [inlein.daemon.utils :as utils]))
 
 (def config {:port 0
              :inlein-home (utils/inlein-home)})

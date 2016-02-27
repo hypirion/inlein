@@ -1,4 +1,4 @@
-(ns inlein.server.server
+(ns inlein.daemon.server
   (:require [com.stuartsierra.component :as component]
             [clojure.java.io :as io])
   (:import (java.net ServerSocket SocketTimeoutException)
