@@ -6,6 +6,7 @@ import java.nio.file.*;
 import java.util.*;
 
 import com.hypirion.bencode.*;
+import inlein.client.tasks.Version;
 
 public final class ServerConnection implements AutoCloseable {
     private Socket sock;
@@ -19,11 +20,48 @@ public final class ServerConnection implements AutoCloseable {
             sc = new ServerConnection();
         }
         if (! sc.tryConnect()) {
-            // TODO: Try to start inlein server.
-            System.out.println("Inlein server not running!");
-            System.exit(1);
+            sc.tryStart();
+            if (! sc.tryConnect()) {
+                System.out.println("Inlein server not running!");
+                System.exit(1);
+            }
         }
         return sc;
+    }
+
+    private void tryStart() throws Exception {
+        String daemonName = String.format("daemon-%s-standalone.jar", Version.getVersion());
+        Path p = Paths.get(inleinHome(), "daemons", daemonName);
+        if (!p.toFile().exists()) {
+            tryDownload(daemonName, p);
+        }
+        runDaemon(p);
+    }
+
+    private static void runDaemon(Path jar) throws Exception {
+        String javaCmd = System.getenv("JAVA_CMD");
+        if (javaCmd == null) {
+            javaCmd = "java";
+        }
+        ProcessBuilder pb = new ProcessBuilder(javaCmd, "-jar", jar.toString());
+        pb.directory(new File(System.getProperty("user.home")));
+        Process p = pb.start();
+        BufferedReader buf = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = buf.readLine();
+    }
+
+    private void tryDownload(String daemonName, Path loc) throws Exception {
+        // create directory if it does not exist.
+        loc.getParent().toFile().mkdirs();
+        if (Version.getVersion().endsWith("SNAPSHOT")) {
+            System.err.println("Cannot download inlein daemon snapshots.");
+            System.err.printf("Please install manually into %s, or run manually.\n",
+                              loc.toString());
+            System.exit(1);
+        } else {
+            System.err.println("daemon downloads aren't implemented yet");
+            System.exit(1);
+        }
     }
 
     public boolean tryConnect() throws Exception {
