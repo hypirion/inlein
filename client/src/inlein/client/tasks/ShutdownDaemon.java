@@ -5,21 +5,18 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public final class Shutdown extends Task {
+public final class ShutdownDaemon extends Task {
 
-    public static final Shutdown instance = new Shutdown();
+    public static final ShutdownDaemon instance = new ShutdownDaemon();
 
-    private Shutdown() {
-        super("--shutdown",
-              "Shuts off the Inlein server",
-              "Shuts off the Inlein server");
+    private ShutdownDaemon() {
+        super("--shutdown-daemon",
+              "Shuts off the Inlein daemon",
+              "Shuts off the Inlein daemon");
     }
 
     public void run(ServerConnection conn, String[] args) throws Exception {
-        if (args.length != 0) {
-            System.out.println("--shutdown takes 0 arguments");
-            System.exit(1);
-        }
+        assertArgcount(args, 0);
         if (conn == null) {
             conn = new ServerConnection();
         }
