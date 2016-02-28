@@ -50,9 +50,18 @@ public final class Help extends Task {
         System.out.println("       (to run an inlein task)");
     }
 
+    public static String rpad(String s, int n) {
+        return String.format("%1$-" + n + "s", s);
+    }
+
     private void printTasks() {
+        int longest = 0;
         for (Task task : tasks.values()) {
-            System.out.println(task.taskname + " " + task.shortdoc);
+            longest = Math.max(task.taskname.length(), longest);
+        }
+        longest += 4; // add spacing
+        for (Task task : tasks.values()) {
+            System.out.println(rpad(task.taskname, longest) + task.shortdoc);
         }
     }
 }
