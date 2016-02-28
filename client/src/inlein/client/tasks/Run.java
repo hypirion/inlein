@@ -27,6 +27,24 @@ public final class Run extends Task {
         Path p = Paths.get(args[0]).toAbsolutePath();
         req.put("file", p.toString());
         Map<String, Object> reply = conn.sendRequest(req);
-        System.out.println(reply.get("classpath-string"));
+
+        String javaCmd = System.getenv("JAVA_CMD");
+        if (javaCmd == null) {
+            javaCmd = "java";
+        }
+        ArrayList<String> cmdArgs = new ArrayList<String>();
+        cmdArgs.add(javaCmd);
+        cmdArgs.add("-cp");
+        cmdArgs.add((String) reply.get("classpath-string"));
+        cmdArgs.add("clojure.main");
+        for (String arg : args) {
+            cmdArgs.add(arg);
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(cmdArgs);
+        pb.inheritIO();
+        Process proc = pb.start();
+        proc.waitFor();
+        System.exit(proc.exitValue());
     }
 }
