@@ -21,7 +21,7 @@ public final class ShutdownDaemon extends Task {
             conn = new ServerConnection();
         }
         if (! conn.tryConnect()) {
-            System.exit(0);
+            return;
         }
         Map<String, Object> req = new HashMap();
         req.put("op", "shutdown");

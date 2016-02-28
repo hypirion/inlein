@@ -44,5 +44,6 @@ public class Main {
         tasks.put(Run.instance.taskname, Run.instance);
         tasks.put(ShutdownDaemon.instance.taskname, ShutdownDaemon.instance);
         tasks.put(StartDaemon.instance.taskname, StartDaemon.instance);
+        tasks.put(RestartDaemon.instance.taskname, RestartDaemon.instance);
     }
 }
