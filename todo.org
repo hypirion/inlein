@@ -8,7 +8,8 @@
 - [ ] Documentation on howto hack on this
 - [X] jvm-opts
 - [ ] Windows (launch4j) (?)
-- [ ] deps task
+  - [ ] Ugh it seems like subprocesses are automatically killed =/
+- [X] deps task
 
 ** 0.2.0
 
