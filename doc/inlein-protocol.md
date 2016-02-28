@@ -82,7 +82,7 @@ The response – if successful – will be on the shape
 ```clj
 {:type "response"
  :returns "jvm-params"
- :classpath ["a" "b" "c"]
+ :classpath-string "a:b:c"
  :jvm-args ["-Xms512m"]}
 ```
 

@@ -2,6 +2,7 @@ package inlein.client.tasks;
 
 import inlein.client.*;
 import java.io.*;
+import java.nio.file.*;
 import java.net.*;
 import java.util.*;
 
@@ -22,9 +23,10 @@ public final class Run extends Task {
         }
         conn = ServerConnection.ensureConnected(conn);
         Map<String, Object> req = new HashMap();
-        req.put("op", "jvm-args");
-        req.put("file", args[0]);
+        req.put("op", "jvm-params");
+        Path p = Paths.get(args[0]).toAbsolutePath();
+        req.put("file", p.toString());
         Map<String, Object> reply = conn.sendRequest(req);
-        System.out.println(reply);
+        System.out.println(reply.get("classpath-string"));
     }
 }

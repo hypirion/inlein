@@ -1,6 +1,7 @@
 (ns inlein.daemon.server
   (:require [com.stuartsierra.component :as component]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [inlein.daemon.read-script :as rs])
   (:import (java.net ServerSocket SocketTimeoutException)
            (java.io BufferedInputStream)
            (com.hypirion.bencode BencodeReader BencodeWriter)))
@@ -56,10 +57,22 @@
   (write-response out op {:msg "ok, shutting down"})
   ::shutdown)
 
+(defmethod handle-request "jvm-params" [op in out]
+  (write-response out op (rs/read-script-params (:file op))))
+
 (defmethod handle-request :default [op in out]
   (write-response out op
                   {:error (str "Inlein server is not familiar with the operation "
                                (:op op))}))
+
+(defn handle-request-errors [op in out]
+  (try (handle-request op in out)
+       (catch clojure.lang.ExceptionInfo ei
+         (write-response out op
+                         (ex-data ei)))
+       (catch Exception e
+         (write-response out op
+                         {:error (str "Unhandled error -- " (.getMessage e))}))))
 
 (defn- do-request [system-atom client-sock]
   (with-open [client-sock client-sock
@@ -71,7 +84,7 @@
       (let [first-op (bencode-read in)]
         (println "first op:" first-op)
         (write-ack out first-op)
-        (let [res (handle-request first-op in out)]
+        (let [res (handle-request-errors first-op in out)]
           (println res)
           (case res
             ::shutdown (.start (Thread. #(swap! system-atom component/stop)))
