@@ -1,0 +1,30 @@
+* TODO
+
+** 0.1.0
+
+- [ ] Usage
+- [ ] Upgrade task
+- [ ] Download dependencies (including inlein client itself when upgrading)
+- [ ] Documentation on howto hack on this
+- [ ] jvm-args
+- [ ] Windows (launch4j) (?)
+- [ ] deps task
+
+** 0.2.0
+
+- [ ] Dependency fetching [0/6]
+  - [ ] mirrors
+  - [ ] Repositories
+  - [ ] Transfer listener
+  - [ ] local-repo
+  - [ ] (Maybe proxy, but most likely not (?))
+
+** 0.3.0
+
+- [ ] Dependency fetching v2 [0/2]
+  - [ ] proxy
+  - [ ] Auth config
+
+** 1.0.0 (or earlier?)
+
+- [ ] Eval config via shims (maybe?)
