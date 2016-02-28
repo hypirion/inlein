@@ -57,7 +57,7 @@
   (write-response out op {:msg "ok, shutting down"})
   ::shutdown)
 
-(defmethod handle-request "jvm-params" [op in out]
+(defmethod handle-request "jvm-opts" [op in out]
   (write-response out op (rs/read-script-params (:file op))))
 
 (defmethod handle-request :default [op in out]

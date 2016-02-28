@@ -6,7 +6,7 @@
 - [ ] Upgrade task
 - [ ] Download dependencies (including inlein client itself when upgrading)
 - [ ] Documentation on howto hack on this
-- [ ] jvm-args
+- [X] jvm-opts
 - [ ] Windows (launch4j) (?)
 - [ ] deps task
 

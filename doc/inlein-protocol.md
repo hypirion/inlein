@@ -67,13 +67,13 @@ After a request is sent, the daemon will immediately respond with an ack:
 A client can perform multiple requests in the same TCP stream, but should for
 its own sanity do them sequentially.
 
-### JVM-params
+### JVM-opts
 
 The most common use of the inlein daemon is to request dependency and
-jvm argument extraction. This can be done by issuing the command
+jvm option extraction. This can be done by issuing the command
 
 ```clj
-{:op "jvm-params"
+{:op "jvm-opts"
  :file "absolute filename"}
 ```
 
@@ -81,9 +81,8 @@ The response – if successful – will be on the shape
 
 ```clj
 {:type "response"
- :returns "jvm-params"
- :classpath-string "a:b:c"
- :jvm-args ["-Xms512m"]}
+ :returns "jvm-opts"
+ :jvm-args ["-Xms512m" "-cp" "a:b:c"]}
 ```
 
 #### Deps

@@ -23,7 +23,7 @@ public final class Run extends Task {
         }
         conn = ServerConnection.ensureConnected(conn);
         Map<String, Object> req = new HashMap();
-        req.put("op", "jvm-params");
+        req.put("op", "jvm-opts");
         Path p = Paths.get(args[0]).toAbsolutePath();
         req.put("file", p.toString());
         Map<String, Object> reply = conn.sendRequest(req);
@@ -34,8 +34,7 @@ public final class Run extends Task {
         }
         ArrayList<String> cmdArgs = new ArrayList<String>();
         cmdArgs.add(javaCmd);
-        cmdArgs.add("-cp");
-        cmdArgs.add((String) reply.get("classpath-string"));
+        cmdArgs.addAll((List<String>) reply.get("jvm-opts"));
         cmdArgs.add("clojure.main");
         for (String arg : args) {
             cmdArgs.add(arg);

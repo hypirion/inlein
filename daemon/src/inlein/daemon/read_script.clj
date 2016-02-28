@@ -25,11 +25,16 @@
     (throw (ex-info "Parameters is not quoted"
                     {:error (str "Parameters\n" (prn-str raw-params) "are not quoted")}))))
 
+(defn- extract-jvm-opts
+  [params]
+  (let [cp-string (deps/classpath-string (:dependencies params))]
+    {:jvm-opts (concat (:jvm-opts params)
+                       ["-cp" cp-string])}))
+
 (defn read-script-params
   [file]
   (let [contents (slurp* file)
         raw-params (read-string* contents)
         params (second raw-params)]
     (validate-params raw-params)
-    {:classpath-string
-     (deps/classpath-string (:dependencies params))}))
+    (extract-jvm-opts params)))
