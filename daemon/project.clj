@@ -9,6 +9,7 @@
                  [com.hypirion/bencode "0.1.1"]]
   :main inlein.daemon.system
   :target-path "target/%s"
+  :uberjar-name "inlein-daemon-%s-standalone.jar"
   :profiles {:uberjar {:aot :all}
              :dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
                    :source-paths ["dev"]

@@ -30,7 +30,7 @@ public final class ServerConnection implements AutoCloseable {
     }
 
     private void tryStart() throws Exception {
-        String daemonName = String.format("daemon-%s-standalone.jar", Version.getVersion());
+        String daemonName = String.format("inlein-daemon-%s-standalone.jar", Version.getVersion());
         Path p = Paths.get(inleinHome(), "daemons", daemonName);
         if (!p.toFile().exists()) {
             tryDownload(daemonName, p);

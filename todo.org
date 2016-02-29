@@ -3,8 +3,8 @@
 ** 0.1.0
 
 - [ ] Usage
-- [ ] Upgrade task
-- [ ] Download dependencies (including inlein client itself when upgrading)
+- [X] Upgrade task
+- [X] Download dependencies (including inlein client itself when upgrading)
 - [ ] Documentation on howto hack on this
 - [X] jvm-opts
 - [ ] Windows (launch4j) (?)

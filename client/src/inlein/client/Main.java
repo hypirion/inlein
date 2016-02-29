@@ -46,5 +46,6 @@ public class Main {
         tasks.put(StartDaemon.instance.taskname, StartDaemon.instance);
         tasks.put(RestartDaemon.instance.taskname, RestartDaemon.instance);
         tasks.put(Deps.instance.taskname, Deps.instance);
+        tasks.put(Upgrade.instance.taskname, Upgrade.instance);
     }
 }
