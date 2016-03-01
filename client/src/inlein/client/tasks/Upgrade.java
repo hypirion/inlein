@@ -39,12 +39,12 @@ public final class Upgrade extends Task {
         System.err.printf("Downloading the %s version of inlein\n", vsn);
         String clientName = String.format(clientFormatName, vsn);
         String daemonName = String.format(daemonFormatName, vsn);
-        Path clientPath = Paths.get(ServerConnection.inleinHome(), "clients", clientName);
-        Path daemonPath = Paths.get(ServerConnection.inleinHome(), "daemons", daemonName);
+        Path clientPath = Paths.get(Utils.inleinHome(), "clients", clientName);
+        Path daemonPath = Paths.get(Utils.inleinHome(), "daemons", daemonName);
         // TODO: d/l SHA to speed things up? Check d/l is correct?
         // TODO: Run in parallel?
-        downloadFile(String.format(urlFormat, vsn, clientName), clientPath);
-        downloadFile(String.format(urlFormat, vsn, daemonName), daemonPath);
+        Utils.downloadFile(String.format(urlFormat, vsn, clientName), clientPath);
+        Utils.downloadFile(String.format(urlFormat, vsn, daemonName), daemonPath);
         // then override the jar currently running
         String inleinFile = System.getProperty("inlein.client.file");
         if (inleinFile == null) {
@@ -62,6 +62,12 @@ public final class Upgrade extends Task {
         System.out.printf("Upgraded to %s of inlein.\n", vsn);
     }
 
+    public static void downloadDaemon(String vsn) throws Exception {
+        String daemonName = String.format(daemonFormatName, vsn);
+        Path daemonPath = Paths.get(Utils.inleinHome(), "daemons", daemonName);
+        Utils.downloadFile(String.format(urlFormat, vsn, daemonName), daemonPath);
+    }
+
     public static String latestVersion() throws Exception {
         URL url = new URL(latestUrl);
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -72,28 +78,5 @@ public final class Upgrade extends Task {
         }
         String loc = conn.getHeaderField("location");
         return loc.substring(loc.lastIndexOf('/') + 1);
-    }
-
-    public static void downloadFile(String url, Path p) throws Exception {
-        Path tmp = Files.createTempFile(p.toFile().getName(), ".jar");
-
-        System.err.println("Downloading " + url + "...");
-        try (ReadableByteChannel src = Channels.newChannel((new URL(url)).openStream());
-             FileChannel dst = new FileOutputStream(tmp.toFile()).getChannel()) {
-            final ByteBuffer buf = ByteBuffer.allocateDirect(32 * 1024 * 1024);
-
-            while(src.read(buf) != -1) {
-                buf.flip();
-                dst.write(buf);
-                buf.compact();
-            }
-            buf.flip();
-            while(buf.hasRemaining()) {
-                dst.write(buf);
-            }
-        }
-        p.toFile().getCanonicalFile().getParentFile().mkdirs();
-        Files.move(tmp, p, StandardCopyOption.ATOMIC_MOVE,
-                   StandardCopyOption.REPLACE_EXISTING);
     }
 }

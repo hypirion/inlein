@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.hypirion.bencode.*;
 import inlein.client.tasks.Version;
+import inlein.client.tasks.Upgrade;
 
 public final class ServerConnection implements AutoCloseable {
     private Socket sock;
@@ -31,7 +32,7 @@ public final class ServerConnection implements AutoCloseable {
 
     private void tryStart() throws Exception {
         String daemonName = String.format("inlein-daemon-%s-standalone.jar", Version.getVersion());
-        Path p = Paths.get(inleinHome(), "daemons", daemonName);
+        Path p = Paths.get(Utils.inleinHome(), "daemons", daemonName);
         if (!p.toFile().exists()) {
             tryDownload(daemonName, p);
         }
@@ -51,16 +52,13 @@ public final class ServerConnection implements AutoCloseable {
     }
 
     private void tryDownload(String daemonName, Path loc) throws Exception {
-        // create directory if it does not exist.
-        loc.getParent().toFile().mkdirs();
         if (Version.getVersion().endsWith("SNAPSHOT")) {
             System.err.println("Cannot download inlein daemon snapshots.");
             System.err.printf("Please install manually into %s, or run manually.\n",
                               loc.toString());
             System.exit(1);
         } else {
-            System.err.println("daemon downloads aren't implemented yet");
-            System.exit(1);
+            Upgrade.downloadDaemon(Version.getVersion());
         }
     }
 
@@ -68,7 +66,7 @@ public final class ServerConnection implements AutoCloseable {
         if (connected) {
             return true;
         }
-        Integer port = inleinPort();
+        Integer port = Utils.inleinPort();
         if (port == null) {
             return false;
         }
@@ -127,30 +125,5 @@ public final class ServerConnection implements AutoCloseable {
         out.close();
         in.close();
         connected = false;
-    }
-
-
-    /**
-     * Returns the home directory to inlein.
-     */
-    public static String inleinHome() {
-        String res = System.getenv("INLEIN_HOME");
-        if (res == null) {
-            res = new File(System.getProperty("user.home"), ".inlein").getAbsolutePath();
-        }
-        return res;
-    }
-
-    /**
-     * Returns the inlein server's port. If the value returned is
-     * <code>null</code>, then the server is not running.
-     */
-    public static Integer inleinPort() throws IOException {
-        Path p = Paths.get(inleinHome(), "port");
-        if (!p.toFile().exists()) {
-            return null;
-        }
-        byte[] stringPort = Files.readAllBytes(p);
-        return Integer.parseInt(new String(stringPort));
     }
 }
