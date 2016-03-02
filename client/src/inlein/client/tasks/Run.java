@@ -33,6 +33,7 @@ public final class Run extends Task {
         ArrayList<String> cmdArgs = new ArrayList<String>();
         cmdArgs.add(javaCmd);
         cmdArgs.addAll((List<String>) reply.get("jvm-opts"));
+        cmdArgs.add(String.format("-D$0=%s", args[0]));
         cmdArgs.add("clojure.main");
         for (String arg : args) {
             cmdArgs.add(arg);

@@ -10,6 +10,7 @@
 - [ ] Windows (launch4j) (?)
   - [ ] Ugh it seems like subprocesses are automatically killed =/
 - [X] deps task
+- [X] system parameter for "$0"
 
 ** 0.2.0
 
