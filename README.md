@@ -71,15 +71,21 @@ Now make it executable (`chmod +x primes.clj`), and try it out by e.g. calling
 An inlein script begins with a quoted map, which contains the script's
 dependencies. They are specified exactly like in Leiningen, as a vector of
 dependencies associated with the `:dependency` key. The quoted map may also
-contain JVM options you want to set, to speed up program startup or longer
-running programs.
+contain JVM options you want to set (generally to speed up program startup).
 
 Inlein also tags the name of the file to the System property `$0`, to ease
 creation of "shell"-like scripts.
 
 ## Building from Source
 
-To build from source, see the Bootstrapping section in
+If you have `~/bin` on your path and want to run a snapshot version of inlein,
+you can just call `test/install.sh`. This should place the client in
+`~/bin/inlein` and the proper deamon where it needs to be placed. Remember that
+you have to override the installed inlein version manually if you want to
+upgrade or downgrade again.
+
+To play around with the source, or install manually, see the Bootstrapping
+section in
 [CONTRIBUTING.md](https://github.com/hyPiRion/inlein/blob/master/CONTRIBUTING.md#bootstrapping).
 
 ## License
