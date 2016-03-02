@@ -22,8 +22,14 @@ runs.
 ## Usage
 
 Inlein is usually called with the file to run, along with the parameters passed
-to the script itself. On *nix-like systems, you can omit calling inlein directly
-by making the script executable and prepending the shebang-line
+to the script itself.
+
+```shell
+inlein myscript.clj my args here
+```
+
+On *nix-like systems, you can omit calling inlein directly by making the script
+executable and prepending the shebang-line
 
 ```clj
 #!/usr/bin/env inlein
@@ -36,7 +42,7 @@ at the very start of the script.
 As an example, let's make a script which calculates the *nth* prime number for
 the user (0-indexed). We will use
 [my prime library](https://github.com/hyPiRion/primes) to find the prime, to
-show off dependency usage.
+show how to add dependencies.
 
 Type this into a file, and call it `primes.clj`:
 
@@ -67,6 +73,14 @@ dependencies. They are specified exactly like in Leiningen, as a vector of
 dependencies associated with the `:dependency` key. The quoted map may also
 contain JVM options you want to set, to speed up program startup or longer
 running programs.
+
+Inlein also tags the name of the file to the System property `$0`, to ease
+creation of "shell"-like scripts.
+
+## Building from Source
+
+To build from source, see the Bootstrapping section in
+[CONTRIBUTING.md](https://github.com/hyPiRion/inlein/blob/master/CONTRIBUTING.md#bootstrapping).
 
 ## License
 
