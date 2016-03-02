@@ -2,7 +2,7 @@
   (:require [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
             [inlein.daemon.read-script :as rs])
-  (:import (java.net ServerSocket SocketTimeoutException)
+  (:import (java.net ServerSocket SocketTimeoutException InetAddress)
            (java.io BufferedInputStream)
            (com.hypirion.bencode BencodeReader BencodeWriter)))
 
@@ -80,15 +80,17 @@
               in (-> (.getInputStream client-sock)
                      (BufferedInputStream.)
                      (BencodeReader.))]
-    (when-not (.. client-sock getInetAddress isSiteLocalAddress)
-      (let [first-op (bencode-read in)]
-        (println "first op:" first-op)
-        (write-ack out first-op)
-        (let [res (handle-request-errors first-op in out)]
-          (println res)
-          (case res
-            ::shutdown (.start (Thread. #(swap! system-atom component/stop)))
-            nil))))))
+    (loop [op (bencode-read in)]
+      (if-not op
+        nil
+        (do
+          (println "op request:" op)
+          (write-ack out op)
+          (let [res (handle-request-errors op in out)]
+            (println res)
+            (case res
+              ::shutdown (.start (Thread. #(swap! system-atom component/stop)))
+              (recur (bencode-read in)))))))))
 
 (defn run-server [system-atom server-socket]
   (try
@@ -108,8 +110,8 @@
   (start [this]
     (if socket-thread
       this
-      (let [sock (doto (ServerSocket. (:port cfg))
-                   (.setSoTimeout 100))
+      (let [sock (doto (ServerSocket. (:port cfg) 0 (InetAddress/getLoopbackAddress))
+                       (.setSoTimeout 100))
             thread (doto (Thread. #(run-server system-atom sock))
                      (.start))]
         (.mkdirs (io/file (:inlein-home cfg)))
