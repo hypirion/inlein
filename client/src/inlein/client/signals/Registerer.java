@@ -9,13 +9,7 @@ public class Registerer {
     }
 
     public static void dropSignals() {
-        // TODO: This is... hacky? :)
-        for (String s : new String[]{"HUP", "INT", "TRAP", "ABRT", "BUS", "USR2",
-                                     "PIPE", "ARLM", "TERM", "STKFLT", "CHLD",
-                                     "CONT", "TSTP", "TTIN", "TTOU", "URG",
-                                     "XCPU", "XFSZ", "VTALRM", "PROF", "WINCH",
-                                     "IO", "PWR", "SYS"}) {
-            dropSignal(s);
-        }
+        // TODO: This is... hacky
+        dropSignal("INT", "CONT");
     }
 }

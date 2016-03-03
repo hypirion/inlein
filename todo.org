@@ -30,3 +30,4 @@
 ** 1.0.0 (or earlier?)
 
 - [ ] Eval config via shims (maybe?)
+- [ ] Move client over to C (???)
