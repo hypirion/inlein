@@ -1,9 +1,10 @@
 # Inlein Protocol
 
-(I am not a protocol designer btw, this is all randomly created)
+(I am not a protocol designer, so if anything is vague or seems poorly designed,
+feel free to comment)
 
-Synchronous Bencode over a TCP stream. The client first sends a _request_ to the
-daemon, and a _response_ is returned from the daemon.
+The inplein protocol uses Bencode over a TCP stream. The client first sends a
+_request_ to the daemon, and a _response_ is returned from the daemon.
 
 Data transferred between client and daemon is always bencode dicts. The daemon
 may send log _messages_ before or after responses are sent.
@@ -27,7 +28,8 @@ and errors to the user.
 ## Opening and Closing the connection
 
 The client does not have to send anything over the wire after opening a
-connection or closing it.
+connection or closing it. The client can send as many requests as it would like,
+before closing the connection.
 
 ## Requests
 
@@ -64,8 +66,9 @@ After a request is sent, the daemon will immediately respond with an ack:
  :op "request"}
 ```
 
-A client can perform multiple requests in the same TCP stream, but should for
-its own sanity do them sequentially.
+A client can perform multiple requests in the same TCP stream, but they will be
+handled in sequence. The client should – for its own convenience – handle them
+sequentially.
 
 ### JVM-opts
 
@@ -77,7 +80,7 @@ jvm option extraction. This can be done by issuing the command
  :file "absolute filename"}
 ```
 
-The response – if successful – will be on the shape
+The response – if successful – will be on the form
 
 ```clj
 {:type "response"
@@ -85,16 +88,18 @@ The response – if successful – will be on the shape
  :jvm-args ["-Xms512m" "-cp" "a:b:c"]}
 ```
 
-#### Deps
+The classpath will contain dependencies that are fetched.
+
+#### Ping
+
+You can perform a ping to verify that the server is alive. This can be done by
+performing
 
 ```clj
-{:type "response"
- :returns "deps"
- :msg "Done" ;; or "Failed"
-}
+{:op "ping"}
 ```
 
-#### Pong
+which, if successful, will respond with
 
 ```clj
 {:type "response"
@@ -104,8 +109,19 @@ The response – if successful – will be on the shape
 
 #### Shutdown
 
+To shutdown the daemon, one should tell it to shut down like so:
+
+```clj
+{:op "shutdown"}
+```
+
+This should in turn respond with the value
+
 ```clj
 {:type "response"
  :returns "shutdown"
  :msg "ok"}
 ```
+
+The server should not respond to further request from this specific connection,
+but should allow others to finish their requests.

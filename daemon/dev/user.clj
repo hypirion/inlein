@@ -9,5 +9,3 @@
              :inlein-home (utils/inlein-home)})
 
 (set-init! #(new-system-atom config))
-
-
