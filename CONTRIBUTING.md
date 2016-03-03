@@ -1,9 +1,15 @@
 # Contributing
 
+Hi, thank you for your interest in contributing! We try to make it easy for new
+contributors to help out, and do not hesitate to ask if there's anything you
+wonder about. Contributors who have had a single patch accepted may request
+commit rights.
+
 Please report issues on the
 [GitHub issue tracker](https://github.com/hyPiRion/inlein/issues). Sending bug
 reports to personal email addresses is inappropriate. Simpler issues appropriate
-for first-time contributors looking to help out are tagged "newbie".
+for first-time contributors looking to help out are tagged "newbie", and should
+have a some pointers on how to start.
 
 Patches are preferred as GitHub pull requests. Please use topic branches when
 sending pull requests rather than committing directly to master in order to
@@ -40,3 +46,13 @@ Try to be aware of the conventions in the existing code, except the one where we
 don't write tests. Make a reasonable attempt to avoid lines longer than 80
 columns or function bodies longer than 20 lines. Don't use `when` unless it's
 for side-effects.
+
+## Tests
+
+Before you're asking for a pull request, we would be very happy if you ensure
+that the changes you've done doesn't break any of the existing test cases. While
+there is a test suite, it's not terribly thorough, so don't put too much trust
+in it. Patches which add test coverage for the functionality they change are
+especially welcome.
+
+(TODO: Standardise testing?)
