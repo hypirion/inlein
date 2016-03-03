@@ -6,7 +6,7 @@
   :dependencies [[com.hypirion/bencode "0.1.1"]]
   :source-paths []
   :java-source-paths ["src"]
-  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
+  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options" "-XDignore.symbol.file"]
   :main inlein.client.Main
   :scm {:dir ".."}
   :aliases {"javadoc" ["shell" "javadoc" "-d" "javadoc/inlein-${:version}"

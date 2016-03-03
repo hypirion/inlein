@@ -1,6 +1,7 @@
 package inlein.client.tasks;
 
 import inlein.client.*;
+import inlein.client.signals.Registerer;
 import java.nio.file.*;
 import java.util.*;
 
@@ -38,11 +39,23 @@ public final class Run extends Task {
         for (String arg : args) {
             cmdArgs.add(arg);
         }
-
         ProcessBuilder pb = new ProcessBuilder(cmdArgs);
         pb.inheritIO();
         Process proc = pb.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(new ProcessKiller(proc)));
+        Registerer.dropSignals();
         proc.waitFor();
         System.exit(proc.exitValue());
+    }
+
+    private static class ProcessKiller implements Runnable {
+        final Process proc;
+        ProcessKiller(Process proc) {
+            this.proc = proc;
+        }
+
+        public void run() {
+            proc.destroy();
+        }
     }
 }
