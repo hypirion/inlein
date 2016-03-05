@@ -10,6 +10,7 @@ public class Registerer {
 
     public static void dropSignals() {
         // TODO: This is... hacky
-        dropSignal("INT", "CONT");
+        dropSignal("INT");
+        dropSignal("CONT");
     }
 }
