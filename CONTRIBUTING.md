@@ -36,9 +36,8 @@ Updating changes in the program is done by issuing `(reset)`. If you call
 
 The easiest way to run the inlein client is by going into the `client` directory
 and running `lein run -- your params here`. If you mainly work on the daemon,
-you may prefer faster client startup speeds. Running `lein uberjar++` will
-create `target/inlein`, which is a fast executable snapshot version of the
-client.
+you may prefer faster client startup speeds. Running `lein uberjar` will create
+`target/inlein`, which is a fast executable snapshot version of the client.
 
 ## Codebase
 

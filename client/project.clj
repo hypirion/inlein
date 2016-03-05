@@ -11,9 +11,9 @@
   :scm {:dir ".."}
   :aliases {"javadoc" ["shell" "javadoc" "-d" "javadoc/inlein-${:version}"
                        "-sourcepath" "src" "inlein.client"]
-            "uberjar++" ["do"
-                         ["uberjar"]
-                         ["shell" "sh" "executable-jars.sh" "${:version}"]]}
+            "uberjar" ["do"
+                       ["uberjar"]
+                       ["shell" "sh" "executable-jars.sh" "${:version}"]]}
   :plugins [[lein-shell "0.5.0"]]
   :jar-name "inlein-no-deps-%s.jar"
   :uberjar-name "inlein-%s.jar"
