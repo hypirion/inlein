@@ -1,14 +1,20 @@
-#!/usr/bin/env inlein
+#!/bin/sh
+
+#_#_#_#_#_#_
+eval "exec $(inlein --sh-cmd "$0" "$@")"
 
 ;; Your own, self-customised repl with all the tools you'd like to use!
 ;;
 ;; Note: Some signals may be broken with the JVM client, as it cannot pass
-;; signals to the child process easily. This can be fixed with a native client
-;; but for now, there aren't any.
+;; signals to the child process easily. As a result, the incredibly nasty hack
+;; above is used to make shell call inlein, which in turn creates a shell
+;; command which in turn is exec'd by shell. It's effectively a bit like
+;; trampoline inlined. (This is also possible to fix with a non-jvm inlein
+;; client, but we're not there yet)
 
 '{:dependencies [[org.clojure/clojure "1.8.0"]
-                 [reply "0.3.7"]
-                 [net.cgrand/parsley "0.9.3"] ;; to fix reply warning
+                 [reply "0.3.7" :exclusions [net.cgrand/parsley]]
+                 [net.cgrand/parsley "0.9.3"] ;; to fix parsley warning
                  [org.clojure/math.numeric-tower "0.0.4"]
                  [org.clojure/math.combinatorics "0.1.1"]
                  [spyscope "0.1.5"]
@@ -20,6 +26,7 @@
          '[clojure.pprint :refer [pprint]]
          '[clojure.tools.trace :as trace]
          'spyscope.core)
+
 ;; For pythonistas, we alias ** to expt
 (def ** expt)
 
