@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'executable-jars.sh creates executable jars'
-    echo 'Run it with `lein uberjar++`'
+    echo 'Run it with `lein uberjar`'
     exit 1
 fi
 
@@ -16,8 +16,8 @@ if [ ! -f "$jarfile" ]; then
     exit 1
 fi
 
-if [ ! -f "$base/dev-resources/prelude.sh" ] || [ ! -f "$base/dev-resources/prelude.bat" ]; then
-    echo 'Unable to find prelude.sh or prelude.bat in dev-resources,'
+if [ ! -f "$base/dev-resources/prelude.sh" ] ; then
+    echo 'Unable to find prelude.sh in dev-resources,'
     echo 'which is needed for executable jars'
     exit 1
 fi
@@ -25,6 +25,3 @@ fi
 cat "$base/dev-resources/prelude.sh" "$jarfile" >> "$base/target/inlein"
 chmod +x "$base/target/inlein"
 echo "Created $base/target/inlein"
-cat "$base/dev-resources/prelude.bat" "$jarfile" >> "$base/target/inlein.bat"
-## not like we can verify the batch "program" though.
-echo "Created $base/target/inlein.bat"
