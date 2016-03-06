@@ -1,7 +1,8 @@
 #!/bin/sh
 
-#_#_#_#_#_#_
-eval "exec $(inlein --sh-cmd "$0" "$@")"
+#_[
+   eval "exec $(inlein --sh-cmd "$0" "$@")"
+#_ 0]
 
 ;; Your own, self-customised repl with all the tools you'd like to use!
 ;;
