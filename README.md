@@ -4,6 +4,11 @@ Run Clojure scripts with dependencies, but without classpath pains.
 
 ## Installation
 
+For a full introduction and tutorial to Inlein, please see the
+[Getting Started](https://github.com/hyPiRion/inlein/wiki/Getting-Started)-page
+on the wiki. If you know how to use and install Leiningen, you can follow the
+installation steps and quickstarts in this README.
+
 Inlein installs itself on the first run of the `inlein` script; there is no
 separate install script. Follow these instructions to install Inlein
 manually:
@@ -19,7 +24,7 @@ retrieve and start the inlein daemon. You can force download and daemon startup
 by calling `inlein --start-daemon`, to ensure faster startup times on subsequent
 runs.
 
-## Usage
+## Quickstart
 
 Inlein is usually called with the file to run, along with the parameters passed
 to the script itself.
