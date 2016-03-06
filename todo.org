@@ -2,24 +2,26 @@
 
 ** 0.1.0
 
-- [ ] Usage
+- [X] Usage
 - [X] Upgrade task
 - [X] Download dependencies (including inlein client itself when upgrading)
-- [ ] Documentation on howto hack on this
+- [X] Documentation on howto hack on this
 - [X] jvm-opts
-- [ ] Windows (launch4j) (?)
-  - [ ] Ugh it seems like subprocesses are automatically killed =/
+- [X] Windows (launch4j) (?)
+  - [X] Ugh it seems like subprocesses are automatically killed =/
 - [X] deps task
 - [X] system parameter for "$0"
 
 ** 0.2.0
 
-- [ ] Dependency fetching [0/6]
+- [ ] Dependency fetching [0/5]
   - [ ] mirrors
   - [ ] Repositories
   - [ ] Transfer listener
   - [ ] local-repo
   - [ ] (Maybe proxy, but most likely not (?))
+- [ ] Better error messages
+- [ ] General code cleanup
 
 ** 0.3.0
 
@@ -30,4 +32,4 @@
 ** 1.0.0 (or earlier?)
 
 - [ ] Eval config via shims (maybe?)
-- [ ] Move client over to C (???)
+- [ ] Move client over to C/Rust (???)
