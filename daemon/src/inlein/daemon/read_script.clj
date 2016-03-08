@@ -28,7 +28,7 @@
 (defn- extract-jvm-opts
   [params]
   (let [cp-string (deps/classpath-string (:dependencies params))]
-    {:jvm-opts (concat (:jvm-opts params)
+    {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
 
 (defn read-script-params

@@ -7,9 +7,10 @@
 ;; Usage: ./resolution.clj < input.txt > output.txt
 
 '{:dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/math.combinatorics "0.1.1"]]}
-;; Although we could set jvm-opts here, optimisations will be necessary to get
-;; this to reasonable performance, as it's brute forcing the result.
+                 [org.clojure/math.combinatorics "0.1.1"]]
+  :jvm-opts []}
+;; Although we could use the default jvm opts, optimisations may be necessary to
+;; get this to reasonable performance, as it's brute forcing the result.
 
 (require '[clojure.string :as s]
          '[clojure.math.combinatorics :as combo])

@@ -3,8 +3,7 @@
 '{:dependencies [[org.clojure/clojure "1.8.0"]
                  [amazonica "0.3.51" :exclusions [com.amazonaws/aws-java-sdk]]
                  [com.amazonaws/aws-java-sdk-core "1.10.49"]
-                 [com.amazonaws/aws-java-sdk-s3 "1.10.49"]]
-  :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"]}
+                 [com.amazonaws/aws-java-sdk-s3 "1.10.49"]]}
 
 (require '[amazonica.aws.s3 :as s3])
 
