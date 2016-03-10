@@ -14,10 +14,10 @@
 
 ** 0.2.0
 
-- [ ] Dependency fetching [0/5]
+- [-] Dependency fetching [1/5]
   - [ ] mirrors
   - [ ] Repositories
-  - [ ] Transfer listener
+  - [X] Transfer listener
   - [ ] local-repo
   - [ ] (Maybe proxy, but most likely not (?))
 - [ ] Better error messages

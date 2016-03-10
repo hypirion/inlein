@@ -26,15 +26,18 @@
                     {:error (str "Parameters\n" (prn-str raw-params) "are not quoted")}))))
 
 (defn- extract-jvm-opts
-  [params]
-  (let [cp-string (deps/classpath-string (:dependencies params))]
+  [params opts]
+  (let [cp-string (deps/classpath-string (:dependencies params)
+                                         (select-keys opts [:transfer-listener]))]
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
 
 (defn read-script-params
-  [file]
-  (let [contents (slurp* file)
-        raw-params (read-string* contents)
-        params (second raw-params)]
-    (validate-params raw-params)
-    (extract-jvm-opts params)))
+  ([file]
+   (read-script-params file {}))
+  ([file opts]
+   (let [contents (slurp* file)
+         raw-params (read-string* contents)
+         params (second raw-params)]
+     (validate-params raw-params)
+     (extract-jvm-opts params (select-keys opts [:transfer-listener])))))

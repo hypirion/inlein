@@ -1,7 +1,9 @@
 (ns inlein.daemon.server
   (:require [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
-            [inlein.daemon.read-script :as rs])
+            [inlein.daemon.read-script :as rs]
+            [inlein.daemon.dependencies :as deps]
+            [inlein.daemon.time :as t])
   (:import (java.net ServerSocket SocketTimeoutException InetAddress)
            (java.io BufferedInputStream)
            (com.hypirion.bencode BencodeReader BencodeWriter)))
@@ -45,7 +47,13 @@
 (defn- warn [^BencodeWriter out ^String msg]
   (bencode-write out {:type "log"
                       :level "warn"
-                      :timestamp "zero"
+                      :timestamp (t/now-string)
+                      :msg msg}))
+
+(defn- info [^BencodeWriter out ^String msg]
+  (bencode-write out {:type "log"
+                      :level "info"
+                      :timestamp (t/now-string)
                       :msg msg}))
 
 (defmulti handle-request (fn [operation in out] (:op operation)))
@@ -58,7 +66,11 @@
   ::shutdown)
 
 (defmethod handle-request "jvm-opts" [op in out]
-  (write-response out op (rs/read-script-params (:file op))))
+  (let [log-fn (deps/transfer-logger (fn [s]
+                                       (info out s)
+                                       (println s)))]
+    (write-response out op (rs/read-script-params (:file op)
+                                                  {:transfer-listener log-fn}))))
 
 (defmethod handle-request :default [op in out]
   (write-response out op

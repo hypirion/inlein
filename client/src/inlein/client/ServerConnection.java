@@ -77,7 +77,7 @@ public final class ServerConnection implements AutoCloseable {
         sock = new Socket(hostName, portNumber);
         out = new BencodeWriter(sock.getOutputStream());
         in = new BencodeReader(new BufferedInputStream(sock.getInputStream()));
-        lp = new LogPrinter(LogPrinter.Level.WARN);
+        lp = new LogPrinter(LogPrinter.Level.INFO);
         connected = true;
         return true;
     }
