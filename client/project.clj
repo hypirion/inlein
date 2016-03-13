@@ -1,4 +1,4 @@
-(defproject inlein/client "0.1.0-SNAPSHOT"
+(defproject inlein/client "0.1.0"
   :description "Inlein your dependencies."
   :url "https://github.com/hyPiRion/inlein"
   :license {:name "Eclipse Public License"

@@ -1,6 +1,6 @@
-(defproject inlein/daemon "0.1.0-SNAPSHOT"
+(defproject inlein/daemon "0.1.0"
   :description "The Inlein daemon"
-  :url "http://example.com/FIXME"
+  :url "https://github.com/hyPiRion/inlein"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
@@ -10,6 +10,7 @@
   :main inlein.daemon.system
   :target-path "target/%s"
   :uberjar-name "inlein-daemon-%s-standalone.jar"
+  :scm {:dir ".."}
   :profiles {:uberjar {:aot :all}
              :dev {:dependencies [[org.clojure/tools.namespace "0.2.11"]]
                    :source-paths ["dev"]
