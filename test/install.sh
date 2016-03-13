@@ -8,7 +8,7 @@ mkdir -p ~/.inlein/daemons
 find -iname '*-standalone.jar' -exec cp -t ~/.inlein/daemons {} \;
 
 cd $dir/../client
-lein uberjar++
+lein uberjar
 mv target/inlein ~/bin/inlein
 
 inlein --restart-daemon
