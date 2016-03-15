@@ -69,7 +69,7 @@
   (let [log-fn (deps/transfer-logger (fn [s]
                                        (info out s)
                                        (println s)))]
-    (write-response out op (rs/read-script-params (:file op)
+    (write-response out op (rs/read-script-params (:file op) (:deps op)
                                                   {:transfer-listener log-fn}))))
 
 (defmethod handle-request :default [op in out]
