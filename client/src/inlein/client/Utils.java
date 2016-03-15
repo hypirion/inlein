@@ -30,8 +30,7 @@ public final class Utils {
             }
         }
         p.toFile().getCanonicalFile().getParentFile().mkdirs();
-        Files.move(tmp, p, StandardCopyOption.ATOMIC_MOVE,
-                   StandardCopyOption.REPLACE_EXISTING);
+        Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
