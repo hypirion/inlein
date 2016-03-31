@@ -18,7 +18,7 @@ public final class StartDaemon extends Task {
     public void run(ServerConnection conn, String[] args) throws Exception {
         assertArgcount(args, 0);
         conn = ServerConnection.ensureConnected(conn);
-        Map<String, Object> req = new HashMap();
+        Map<String, Object> req = new HashMap<String, Object>();
         req.put("op", "ping");
         Map<String, Object> reply = conn.sendRequest(req);
         if (reply.get("msg").equals("PONG")) {

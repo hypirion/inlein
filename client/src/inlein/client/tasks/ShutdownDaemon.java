@@ -23,7 +23,7 @@ public final class ShutdownDaemon extends Task {
         if (! conn.tryConnect()) {
             return;
         }
-        Map<String, Object> req = new HashMap();
+        Map<String, Object> req = new HashMap<String, Object>();
         req.put("op", "shutdown");
         Map<String, Object> reply = conn.sendRequest(req);
     }
