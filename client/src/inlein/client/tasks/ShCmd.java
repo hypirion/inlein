@@ -15,13 +15,14 @@ public final class ShCmd extends Task {
               "Prints the shell command a clojure script with dependencies will use");
     }
 
+    @SuppressWarnings("unchecked")
     public void run(ServerConnection conn, String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("run expects at least 1 argument -- the file to run");
             System.exit(1);
         }
         conn = ServerConnection.ensureConnected(conn);
-        Map<String, Object> req = new HashMap();
+        Map<String, Object> req = new HashMap<String, Object>();
         req.put("op", "jvm-opts");
         Path p = Paths.get(args[0]).toAbsolutePath();
         req.put("file", p.toString());

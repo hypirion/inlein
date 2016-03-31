@@ -34,7 +34,7 @@ public class Main {
     }
 
 
-    public static final TreeMap<String, Task> tasks = new TreeMap();
+    public static final TreeMap<String, Task> tasks = new TreeMap<String, Task>();
 
     static {
         Help h = new Help(tasks);

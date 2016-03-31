@@ -20,7 +20,7 @@ public final class Deps extends Task {
             System.exit(1);
         }
         conn = ServerConnection.ensureConnected(conn);
-        Map<String, Object> req = new HashMap();
+        Map<String, Object> req = new HashMap<String, Object>();
         req.put("op", "jvm-opts");
         Path p = Paths.get(args[0]).toAbsolutePath();
         req.put("file", p.toString());
