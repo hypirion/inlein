@@ -15,7 +15,7 @@ public final class Utils {
         Path tmp = Files.createTempFile(p.toFile().getName(), ".jar");
 
         System.err.println("Downloading " + url + "...");
-        try (ReadableByteChannel src = Channels.newChannel((new URL(url)).openStream());
+        try (ReadableByteChannel src = Channels.newChannel(getURLConnection(url).getInputStream());
              FileChannel dst = new FileOutputStream(tmp.toFile()).getChannel()) {
             final ByteBuffer buf = ByteBuffer.allocateDirect(32 * 1024 * 1024);
 
@@ -31,6 +31,32 @@ public final class Utils {
         }
         p.toFile().getCanonicalFile().getParentFile().mkdirs();
         Files.move(tmp, p, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private static URLConnection getURLConnection(String url) throws IOException {
+        Proxy proxy = getProxy();
+        URL toConnectTo = new URL(url);
+        if (proxy == null) {
+            return toConnectTo.openConnection();
+        }
+        else {
+            return toConnectTo.openConnection(proxy);
+        }
+    }
+
+    private static Proxy getProxy() {
+        String proxyHost = System.getProperty("http.proxyHost");
+        try
+        {
+            int proxyPort = Integer.parseInt(System.getProperty("http.proxyPort"));
+            if (proxyHost != null)
+            {
+                InetSocketAddress sa = new InetSocketAddress(proxyHost, proxyPort);
+                return new Proxy(Proxy.Type.HTTP, sa);
+            }
+        }
+        catch (NumberFormatException ignored) {}
+        return null;
     }
 
     /**
