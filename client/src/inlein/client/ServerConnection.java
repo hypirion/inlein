@@ -74,7 +74,11 @@ public final class ServerConnection implements AutoCloseable {
         String hostName = "localhost";
         int portNumber = (int)port;
 
-        sock = new Socket(hostName, portNumber);
+        try {
+            sock = new Socket(hostName, portNumber);
+        } catch (ConnectException ex) {
+            return false;
+        }
         out = new BencodeWriter(sock.getOutputStream());
         in = new BencodeReader(new BufferedInputStream(sock.getInputStream()));
         lp = new LogPrinter(LogPrinter.Level.INFO);

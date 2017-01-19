@@ -19,6 +19,7 @@ mv target/inlein $INLEIN_HOME/inlein
 inlein=$INLEIN_HOME/inlein
 
 PATH="$INLEIN_HOME:$PATH"
+echo -n 2345 > $INLEIN_HOME/port
 $inlein --start-daemon
 trap "echo 'Shutting down temporary daemon...'; $inlein --shutdown-daemon; rm -rf $INLEIN_HOME" EXIT
 
