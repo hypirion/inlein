@@ -10,9 +10,9 @@
 ;; add in.
 
 '{:dependencies [[org.jaunt-lang/jaunt "1.9.0-RC4"]
-                 [reply "0.3.7" :exclusions [net.cgrand/parsley
-                                             org.clojure/clojure]]
-                 [net.cgrand/parsley "0.9.3" :exclusions [org.clojure/clojure]]]
+                 [reply "0.3.7" :exclusions [net.cgrand/parsley]]
+                 [net.cgrand/parsley "0.9.3"]]
+  :exclusions [org.clojure/clojure]
   :jvm-opts ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1" "-Dfile.encoding=UTF-8"]}
 
 (reply.ReplyMain/main (into-array String ["--standalone"]))

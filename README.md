@@ -94,7 +94,7 @@ section in
 
 ## License
 
-Copyright © 2016 Jean Niklas L'orange
+Copyright © 2016-2017 Jean Niklas L'orange
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version. See the file LICENSE.

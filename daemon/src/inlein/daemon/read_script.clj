@@ -22,7 +22,7 @@
 (defn- validate-params
   [raw-params]
   (when-not (= 'quote (first raw-params))
-    (throw (ex-info "Parameters is not quoted"
+    (throw (ex-info "Parameters are not quoted"
                     {:error (str "Parameters\n" (prn-str raw-params) "are not quoted")}))))
 
 (defn- extract-jvm-opts
@@ -38,6 +38,7 @@
   ([file opts]
    (let [contents (slurp* file)
          raw-params (read-string* contents)
-         params (second raw-params)]
-     (validate-params raw-params)
+         _ (validate-params raw-params)
+         params (-> (second raw-params)
+                    deps/add-global-exclusions)]
      (extract-jvm-opts params (select-keys opts [:transfer-listener])))))

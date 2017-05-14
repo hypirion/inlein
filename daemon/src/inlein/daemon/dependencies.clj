@@ -6,6 +6,32 @@
   {"central" {:url "https://repo1.maven.org/maven2/" :snapshots false}
    "clojars" {:url "https://clojars.org/repo/"}})
 
+(defn dep-key-idx [dep key]
+  (loop [i 2]
+    (cond (<= (count dep) i) nil
+          (= (dep i) key) (inc i)
+          :else (recur (+ i 2)))))
+
+(defn- merge-exclusions
+  "Global exclusions override original ones"
+  [originals globals]
+  (concat globals (remove (set globals) originals)))
+
+(defn- add-exclusions
+  "Appends exclusions to dep, or inserts :exclusions if there are none."
+  [exclusions dep]
+  (if-let [exclusion-idx (dep-key-idx dep :exclusions)]
+    (update dep exclusion-idx merge-exclusions exclusions)
+    (conj dep :exclusions exclusions)))
+
+(defn add-global-exclusions
+  "Prepends :exclusions to all dependencies, if :exclusions is set."
+  [{:keys [dependencies exclusions] :as params}]
+  (if-not (and (seq dependencies) (seq exclusions))
+    params
+    (assoc params
+           :dependencies (mapv #(add-exclusions exclusions %) dependencies))))
+
 (defn resolve-dependencies
   ([dependencies]
    (resolve-dependencies dependencies {}))
