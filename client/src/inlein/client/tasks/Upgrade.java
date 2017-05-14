@@ -61,10 +61,10 @@ public final class Upgrade extends Task {
             inleinPath = Files.readSymbolicLink(inleinPath);
         }
         Set<PosixFilePermission> fperms = Files.getPosixFilePermissions(inleinPath);
+        daemonDl.get();
         Files.copy(clientPath, inleinPath, StandardCopyOption.REPLACE_EXISTING);
         Files.setPosixFilePermissions(inleinPath, fperms);
         ShutdownDaemon.instance.run(conn, new String[0]);
-        daemonDl.get();
         System.out.printf("Upgraded to %s of inlein.\n", vsn);
     }
 
