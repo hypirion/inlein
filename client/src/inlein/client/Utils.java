@@ -60,6 +60,28 @@ public final class Utils {
     }
 
     /**
+     * Returns the file content as a string.
+     */
+    public static String downloadFile(String url) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ReadableByteChannel src = Channels.newChannel((new URL(url)).openStream());
+             WritableByteChannel dst = Channels.newChannel(baos)) {
+            final ByteBuffer buf = ByteBuffer.allocateDirect(32 * 1024 * 1024);
+
+            while(src.read(buf) != -1) {
+                buf.flip();
+                dst.write(buf);
+                buf.compact();
+            }
+            buf.flip();
+            while(buf.hasRemaining()) {
+                dst.write(buf);
+            }
+        }
+        return baos.toString();
+    }
+
+    /**
      * Returns the home directory to inlein.
      */
     public static String inleinHome() {
@@ -81,5 +103,5 @@ public final class Utils {
         }
         byte[] stringPort = Files.readAllBytes(p);
         return Integer.parseInt(new String(stringPort));
-    }    
+    }
 }
