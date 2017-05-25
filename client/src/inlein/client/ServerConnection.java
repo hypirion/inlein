@@ -44,6 +44,10 @@ public final class ServerConnection implements AutoCloseable {
         if (javaCmd == null) {
             javaCmd = "java";
         }
+        // Make it possible to run inlein daemon as daemon on Windows
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            javaCmd += "w";
+        }
         ProcessBuilder pb = new ProcessBuilder(javaCmd, "-jar", jar.toString());
         pb.directory(new File(System.getProperty("user.home")));
         Process p = pb.start();
