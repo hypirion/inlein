@@ -84,7 +84,8 @@
                          (ex-data ei)))
        (catch Exception e
          (write-response out op
-                         {:error (str "Unhandled error -- " (.getMessage e))}))))
+                         {:error (str "Unhandled error -- " (.getMessage e))})
+         (.printStackTrace e))))
 
 (defn- do-request [system-atom client-sock]
   (with-open [client-sock client-sock
