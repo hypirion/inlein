@@ -1,7 +1,7 @@
 (ns inlein.daemon.read-script
   (:require [inlein.daemon.dependencies :as deps]
             [clojure.java.io :as io])
-  (:import (java.io FileNotFoundException)))
+  (:import (java.io File FileNotFoundException)))
 
 (defn- slurp*
   [file]
@@ -12,12 +12,12 @@
                                       (.getMessage fnfe))})))))
 
 (defn- read-string*
-  [data file]
+  [data fname]
   (try (read-string data)
        (catch RuntimeException e
            (throw (ex-info "RuntimeException"
                            {:error (str "Could not parse inlein options for file "
-                                        file ": " (.getMessage e))})))))
+                                        fname ": " (.getMessage e))})))))
 
 (defn- validate-params
   [raw-params file]
@@ -37,16 +37,38 @@
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
 
-(defn- file-params [file]
-  (let [contents (slurp* file)
-        raw-params (read-string* contents file)]
-    (validate-params raw-params file)
+(defn- file-params [fname]
+  (let [contents (slurp* fname)
+        raw-params (read-string* contents fname)]
+    (validate-params raw-params fname)
     (-> (second raw-params)
         deps/add-global-exclusions)))
 
+(defn- rel-path [source fname]
+  (prn (list 'rel-path source fname))
+  (if (.isAbsolute (File. fname))
+    fname
+    (-> (File. source)
+        (.getParentFile)
+        (File. fname)
+        (.getPath))))
+
+(defn- all-file-params
+  ([fname]
+   (all-file-params {} fname))
+  ([already-fetched fname]
+   (if (already-fetched fname)
+     already-fetched
+     (let [params (file-params fname)]
+       (reduce
+        all-file-params
+        (assoc already-fetched fname params)
+        (map #(rel-path fname %) (:file-deps params)))))))
+
 (defn read-script-params
-  ([file]
-   (read-script-params file {}))
-  ([file opts]
-   (-> (file-params file)
+  ([fname]
+   (read-script-params fname {}))
+  ([fname opts]
+   (-> (all-file-params fname)
+       (get fname)
        (extract-jvm-opts (select-keys opts [:transfer-listener])))))
