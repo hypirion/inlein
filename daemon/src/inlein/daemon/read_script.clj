@@ -1,9 +1,9 @@
 (ns inlein.daemon.read-script
-  (:require [inlein.daemon.dependencies :as deps]
-            [clojure.string :as c.str]
+  (:require [clojure.string :as c.str]
+            [inlein.daemon.dependencies :as deps]
+            [inlein.daemon.utils :as utils]
             [flatland.ordered.set :as ordered.set])
   (:import (java.io FileNotFoundException)
-           (java.nio.file Paths)
            (flatland.ordered.set OrderedSet)))
 
 (defn- slurp*
@@ -47,24 +47,6 @@
     (-> (second raw-params)
         deps/add-global-exclusions)))
 
-(defn into-path [fname]
-  (Paths/get fname (make-array String 0)))
-
-(defn- rel-path [source fname]
-  (let [fpath (into-path fname)]
-    (if (.isAbsolute fpath)
-      fname
-      (-> (into-path source)
-          (.resolveSibling fpath)
-          (.toAbsolutePath)
-          (.normalize)
-          (.toString)))))
-
-(defn- abs-path [path]
-  (-> (into-path path)
-      (.toAbsolutePath)
-      (.normalize)
-      (.toString)))
 
 (defn- all-file-params
   ([fname]
@@ -76,7 +58,7 @@
        (reduce
         all-file-params
         (assoc already-fetched fname params)
-        (map #(rel-path fname %) (:file-deps params)))))))
+        (map #(utils/resolve-sibling fname %) (:file-deps params)))))))
 
 (defn- os-peek [^OrderedSet stack]
   (peek (.i->k stack)))
@@ -88,23 +70,23 @@
             (subvec (.i->k stack) loc))))
 
 (defn- detect-cycles
-  ([fmap ^OrderedSet stack]
-   (let [fname (os-peek stack)
-         params (get fmap fname)]
-     (doseq [dep (:file-deps params)]
-       (let [dep-fname (rel-path fname dep)]
-         (when (contains? stack dep-fname)
-           (throw (ex-info "Cyclic :file-dep detected"
-                           {:error (str "Cyclic :file-dep detected: "
-                                        (c.str/join " -> " (os-member stack dep-fname))
-                                        " -> " dep-fname)})))
-         (detect-cycles fmap (conj stack dep-fname)))))))
+  [fmap ^OrderedSet stack]
+  (let [fname (os-peek stack)
+        params (get fmap fname)]
+    (doseq [dep (:file-deps params)]
+      (let [dep-fname (utils/resolve-sibling fname dep)]
+        (when (contains? stack dep-fname)
+          (throw (ex-info "Cyclic :file-dep detected"
+                          {:error (str "Cyclic :file-dep detected: "
+                                       (c.str/join " -> " (os-member stack dep-fname))
+                                       " -> " dep-fname)})))
+        (detect-cycles fmap (conj stack dep-fname))))))
 
 (defn read-script-params
   ([fname]
    (read-script-params fname {}))
   ([fname opts]
-   (let [fname (abs-path fname)
+   (let [fname (utils/abs-path fname)
          all-params (all-file-params fname)]
      (detect-cycles all-params (ordered.set/ordered-set fname))
      (-> (get all-params fname)
