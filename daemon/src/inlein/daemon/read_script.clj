@@ -40,11 +40,19 @@
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
 
+(defn- absolutize-file-deps [params fname]
+  (if-not (:file-deps params)
+    params
+    (assoc params
+           :file-deps (into #{} (map #(utils/resolve-sibling fname %)
+                                     (:file-deps params))))))
+
 (defn- file-params [fname]
   (let [contents (slurp* fname)
         raw-params (read-string* contents fname)]
     (validate-params raw-params fname)
     (-> (second raw-params)
+        (absolutize-file-deps fname)
         deps/add-global-exclusions)))
 
 
@@ -58,7 +66,7 @@
        (reduce
         all-file-params
         (assoc already-fetched fname params)
-        (map #(utils/resolve-sibling fname %) (:file-deps params)))))))
+        (:file-deps params))))))
 
 (defn- os-peek [^OrderedSet stack]
   (peek (.i->k stack)))
@@ -73,14 +81,13 @@
   [fmap ^OrderedSet stack]
   (let [fname (os-peek stack)
         params (get fmap fname)]
-    (doseq [dep (:file-deps params)]
-      (let [dep-fname (utils/resolve-sibling fname dep)]
-        (when (contains? stack dep-fname)
-          (throw (ex-info "Cyclic :file-dep detected"
-                          {:error (str "Cyclic :file-dep detected: "
-                                       (c.str/join " -> " (os-member stack dep-fname))
-                                       " -> " dep-fname)})))
-        (detect-cycles fmap (conj stack dep-fname))))))
+    (doseq [dep-fname (:file-deps params)]
+      (when (contains? stack dep-fname)
+        (throw (ex-info "Cyclic :file-dep detected"
+                        {:error (str "Cyclic :file-dep detected: "
+                                     (c.str/join " -> " (os-member stack dep-fname))
+                                     " -> " dep-fname)})))
+      (detect-cycles fmap (conj stack dep-fname)))))
 
 (defn read-script-params
   ([fname]
