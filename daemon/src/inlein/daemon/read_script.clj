@@ -37,16 +37,16 @@
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
 
-(defn- file-params [file opts]
+(defn- file-params [file]
   (let [contents (slurp* file)
-        raw-params (read-string* contents file)
-        _ (validate-params raw-params file)
-        params (-> (second raw-params)
-                   deps/add-global-exclusions)]
-    (extract-jvm-opts params (select-keys opts [:transfer-listener]))))
+        raw-params (read-string* contents file)]
+    (validate-params raw-params file)
+    (-> (second raw-params)
+        deps/add-global-exclusions)))
 
 (defn read-script-params
   ([file]
    (read-script-params file {}))
   ([file opts]
-   (file-params file opts)))
+   (-> (file-params file)
+       (extract-jvm-opts (select-keys opts [:transfer-listener])))))
