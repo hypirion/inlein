@@ -1,7 +1,10 @@
 (ns inlein.daemon.read-script
   (:require [inlein.daemon.dependencies :as deps]
-            [clojure.java.io :as io])
-  (:import (java.io File FileNotFoundException)))
+            [clojure.string :as c.str]
+            [flatland.ordered.set :as ordered.set])
+  (:import (java.io FileNotFoundException)
+           (java.nio.file Paths)
+           (flatland.ordered.set OrderedSet)))
 
 (defn- slurp*
   [file]
@@ -44,14 +47,24 @@
     (-> (second raw-params)
         deps/add-global-exclusions)))
 
+(defn into-path [fname]
+  (Paths/get fname (make-array String 0)))
+
 (defn- rel-path [source fname]
-  (prn (list 'rel-path source fname))
-  (if (.isAbsolute (File. fname))
-    fname
-    (-> (File. source)
-        (.getParentFile)
-        (File. fname)
-        (.getPath))))
+  (let [fpath (into-path fname)]
+    (if (.isAbsolute fpath)
+      fname
+      (-> (into-path source)
+          (.resolveSibling fpath)
+          (.toAbsolutePath)
+          (.normalize)
+          (.toString)))))
+
+(defn- abs-path [path]
+  (-> (into-path path)
+      (.toAbsolutePath)
+      (.normalize)
+      (.toString)))
 
 (defn- all-file-params
   ([fname]
@@ -65,10 +78,34 @@
         (assoc already-fetched fname params)
         (map #(rel-path fname %) (:file-deps params)))))))
 
+(defn- os-peek [^OrderedSet stack]
+  (peek (.i->k stack)))
+
+(defn- os-member
+  [^OrderedSet stack elem]
+  (if-let [loc (get (.k->i stack) elem)]
+    (remove #{:flatland.ordered.set/empty}
+            (subvec (.i->k stack) loc))))
+
+(defn- detect-cycles
+  ([fmap ^OrderedSet stack]
+   (let [fname (os-peek stack)
+         params (get fmap fname)]
+     (doseq [dep (:file-deps params)]
+       (let [dep-fname (rel-path fname dep)]
+         (when (contains? stack dep-fname)
+           (throw (ex-info "Cyclic :file-dep detected"
+                           {:error (str "Cyclic :file-dep detected: "
+                                        (c.str/join " -> " (os-member stack dep-fname))
+                                        " -> " dep-fname)})))
+         (detect-cycles fmap (conj stack dep-fname)))))))
+
 (defn read-script-params
   ([fname]
    (read-script-params fname {}))
   ([fname opts]
-   (-> (all-file-params fname)
-       (get fname)
-       (extract-jvm-opts (select-keys opts [:transfer-listener])))))
+   (let [fname (abs-path fname)
+         all-params (all-file-params fname)]
+     (detect-cycles all-params (ordered.set/ordered-set fname))
+     (-> (get all-params fname)
+         (extract-jvm-opts (select-keys opts [:transfer-listener]))))))
