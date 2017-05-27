@@ -35,7 +35,8 @@
 
 (defn- extract-jvm-opts
   [params opts]
-  (let [cp-string (deps/classpath-string (:dependencies params)
+  (let [params (deps/add-global-exclusions params)
+        cp-string (deps/classpath-string (:dependencies params)
                                          (select-keys opts [:transfer-listener]))]
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
@@ -47,7 +48,7 @@
            :file-deps (into #{} (map #(utils/resolve-sibling fname %)
                                      (:file-deps params))))))
 
-(defn- file-params [fname]
+(defn- single-file-params [fname]
   (let [contents (slurp* fname)
         raw-params (read-string* contents fname)]
     (validate-params raw-params fname)
@@ -62,7 +63,7 @@
   ([already-fetched fname]
    (if (already-fetched fname)
      already-fetched
-     (let [params (file-params fname)]
+     (let [params (single-file-params fname)]
        (reduce
         all-file-params
         (assoc already-fetched fname params)
@@ -89,12 +90,37 @@
                                      " -> " dep-fname)})))
       (detect-cycles fmap (conj stack dep-fname)))))
 
+(defn- toposort
+  [fmap root ^OrderedSet order]
+  (if (contains? order root)
+    order
+    (let [deps (:file-deps (get fmap root))]
+      (conj (reduce #(toposort fmap %2 %1) order deps)
+            root))))
+
+(defn- assoc-nonempty [m k v]
+  (if (seq v)
+    (assoc m k v)
+    m))
+
+(defn- cat-merge [k params]
+  (apply concat (keep k params)))
+
+(defn- merge-params [params]
+  (-> {}
+      (assoc-nonempty :dependencies (cat-merge :dependencies (reverse params)))
+      (assoc-nonempty :jvm-opts (cat-merge :jvm-opts params))
+      (assoc-nonempty :exclusions (cat-merge :exclusions (reverse params)))))
+
 (defn read-script-params
   ([fname]
    (read-script-params fname {}))
   ([fname opts]
    (let [fname (utils/abs-path fname)
-         all-params (all-file-params fname)]
-     (detect-cycles all-params (ordered.set/ordered-set fname))
-     (-> (get all-params fname)
-         (extract-jvm-opts (select-keys opts [:transfer-listener]))))))
+         all-params (all-file-params fname)
+         _ (detect-cycles all-params (ordered.set/ordered-set fname))
+         order (toposort all-params fname (ordered.set/ordered-set))
+         params (merge-params (map all-params order))]
+     (-> params
+         (extract-jvm-opts (select-keys opts [:transfer-listener]))
+         (assoc :files (seq order))))))
