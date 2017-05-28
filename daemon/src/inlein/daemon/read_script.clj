@@ -6,31 +6,43 @@
   (:import (java.io FileNotFoundException)
            (flatland.ordered.set OrderedSet)))
 
+;; Used to prettyprint errors: Filenames becomes relative to the root file,
+;; which is the best we can do right now (without passing in yet another
+;; paramter when calling jvm-opts).
+(def ^:dynamic ^:private *root* nil)
+
+(defn- readable-fname [fname]
+  (utils/relativize-sibling *root* fname))
+
 (defn- slurp*
-  [file]
-  (try (slurp file)
+  [fname]
+  (try (slurp fname)
        (catch FileNotFoundException fnfe
-         (throw (ex-info "FileNotFoundException"
-                         {:error (str "Could not open file "
-                                      (.getMessage fnfe))})))))
+         (let [fname (readable-fname fname)]
+           (throw (ex-info "FileNotFoundException"
+                           {:error (str "Could not open file " fname ": "
+                                        (.getMessage fnfe))}))))))
 
 (defn- read-string*
   [data fname]
   (try (read-string data)
        (catch RuntimeException e
+         (let [fname (readable-fname fname)]
            (throw (ex-info "RuntimeException"
                            {:error (str "Could not parse inlein options for file "
-                                        fname ": " (.getMessage e))})))))
+                                        fname ": " (.getMessage e))}))))))
 
 (defn- validate-params
-  [raw-params file]
+  [raw-params fname]
   (when-not (= 'quote (first raw-params))
-    (throw (ex-info (str "Parameters in " file " are not quoted")
-                    {:error (str "Parameters in " file "\n" (prn-str raw-params) "are not quoted")})))
+    (let [fname (readable-fname fname)]
+      (throw (ex-info (str "Parameters in " fname " are not quoted")
+                      {:error (str "Parameters in " fname "\n" (prn-str raw-params)
+                                   "are not quoted")}))))
   (let [params (second raw-params)]
     (when (and (contains? params :file-deps)
                (not (set? (:file-deps params))))
-      (let [msg (str ":file-deps in " file " must be a set ")]
+      (let [msg (str ":file-deps in " (readable-fname fname) " must be a set ")]
         (throw (ex-info msg {:error msg}))))))
 
 (defn- extract-jvm-opts
@@ -45,7 +57,7 @@
   (if-not (:file-deps params)
     params
     (assoc params
-           :file-deps (into #{} (map #(utils/resolve-sibling fname %)
+           :file-deps (into #{} (map #(utils/resolve-abs-sibling fname %)
                                      (:file-deps params))))))
 
 (defn- single-file-params [fname]
@@ -84,10 +96,11 @@
         params (get fmap fname)]
     (doseq [dep-fname (:file-deps params)]
       (when (contains? stack dep-fname)
-        (throw (ex-info "Cyclic :file-dep detected"
-                        {:error (str "Cyclic :file-dep detected: "
-                                     (c.str/join " -> " (os-member stack dep-fname))
-                                     " -> " dep-fname)})))
+        (let [cycle (map readable-fname (os-member stack dep-fname))]
+          (throw (ex-info "Cyclic :file-dep detected"
+                          {:error (str "Cyclic :file-dep detected: "
+                                       (c.str/join " -> " cycle)
+                                       " -> " (readable-fname dep-fname))}))))
       (detect-cycles fmap (conj stack dep-fname)))))
 
 (defn- toposort
@@ -116,11 +129,12 @@
   ([fname]
    (read-script-params fname {}))
   ([fname opts]
-   (let [fname (utils/abs-path fname)
-         all-params (all-file-params fname)
-         _ (detect-cycles all-params (ordered.set/ordered-set fname))
-         order (toposort all-params fname (ordered.set/ordered-set))
-         params (merge-params (map all-params order))]
-     (-> params
-         (extract-jvm-opts (select-keys opts [:transfer-listener]))
-         (assoc :files (seq order))))))
+   (let [fname (utils/abs-path fname)]
+     (binding [*root* fname]
+       (let [all-params (all-file-params fname)
+             _ (detect-cycles all-params (ordered.set/ordered-set fname))
+             order (toposort all-params fname (ordered.set/ordered-set))
+             params (merge-params (map all-params order))]
+         (-> params
+             (extract-jvm-opts (select-keys opts [:transfer-listener]))
+             (assoc :files (seq order))))))))

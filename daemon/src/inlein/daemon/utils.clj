@@ -23,10 +23,20 @@
       (.normalize)
       (.toString)))
 
-(defn resolve-sibling
+(defn resolve-abs-sibling
   "Converts sibling to a path which is relative to source's
   directory. Returns the absolute, normalised path string."
   [source sibling]
   (-> (to-path source)
       (.resolveSibling sibling)
       (abs-path)))
+
+(defn relativize-sibling
+  "Converts sibling to a path which is relative to source's directory. Returns
+  the normalised path string."
+  [source sibling]
+  (-> (to-path source)
+      (.getParent)
+      (.relativize (to-path sibling))
+      (.normalize)
+      (.toString)))
