@@ -5,6 +5,8 @@
 * Added support for `:file-deps` (Jean Niklas L'orange)
 * Added support for `:exclusions` in the parameter map (Jean Niklas L'orange)
 * Fixed a bug where the Windows daemon weren't properly daemonised (Jean Niklas L'orange)
+* Fixed a bug where Inlein crashed when port files weren't properly cleaned up (Mark Mathis)
+* Added proxy support via the System properties `http.proxy{Port,Host}` (Vladimir Kadychevski)
 * Fixed a bug where download failed on machines where `/tmp` and `$HOME` were on
   different mountpoints (Reid McKenzie)
 
