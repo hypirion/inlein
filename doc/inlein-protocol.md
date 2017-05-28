@@ -85,10 +85,14 @@ The response – if successful – will be on the form
 ```clj
 {:type "response"
  :returns "jvm-opts"
- :jvm-args ["-Xms512m" "-cp" "a:b:c"]}
+ :jvm-args ["-Xms512m" "-cp" "a:b:c"]
+ :files ["a.clj" "b.clj"]}
 ```
 
-The classpath will contain dependencies that are fetched.
+The classpath will contain dependencies that are fetched, and `:files` are the
+absolute file path needed to run the program. If there are multiple files, then
+they must be concatenated in the provided order into e.g. a temporary file,
+before being ran.
 
 #### Ping
 

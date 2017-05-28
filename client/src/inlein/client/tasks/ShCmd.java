@@ -28,6 +28,22 @@ public final class ShCmd extends Task {
         req.put("file", p.toString());
         Map<String, Object> reply = conn.sendRequest(req);
 
+        String file;
+        boolean usesTmpFile = false;
+        List<String> fileList = (List<String>) reply.get("files");
+        if (fileList.size() == 1) {
+            file = fileList.get(0); // == args[0]
+        } else {
+            System.out.print("TMP_FILE=\"$(mktemp /tmp/inlein-XXXXXXXXXXXXX)\"; ");
+            file = "\"$TMP_FILE\"";
+            usesTmpFile = true;
+            System.out.print("cat ");
+            for (String fname : fileList) {
+                System.out.print(fname + " ");
+            }
+            System.out.print("> " + file + "; ");
+        }
+
         String javaCmd = System.getenv("JAVA_CMD");
         if (javaCmd == null) {
             javaCmd = "java";
@@ -37,8 +53,9 @@ public final class ShCmd extends Task {
         cmdArgs.addAll((List<String>) reply.get("jvm-opts"));
         cmdArgs.add(String.format("-D$0=%s", args[0]));
         cmdArgs.add("clojure.main");
-        for (String arg : args) {
-            cmdArgs.add(arg);
+        cmdArgs.add(file);
+        for (int i = 1; i < args.length; i++) {
+            cmdArgs.add(args[i]);
         }
 
         boolean first = true;
@@ -46,13 +63,14 @@ public final class ShCmd extends Task {
             if (!first) {
                 System.out.print(" ");
             }
-            if (!containsOnly(cmdArg, CHAR_WHITELIST)) {
+            // Ugggh, this is so hacky :/
+            if (containsOnly(cmdArg, CHAR_WHITELIST) || (cmdArg == file && usesTmpFile)) {
+                // for prettiness
+                System.out.print(cmdArg);
+            } else {
                 System.out.print("'");
                 System.out.print(cmdArg.replace("'", "'\"'\"'"));
                 System.out.print("'");
-            } else {
-                // for prettiness
-                System.out.print(cmdArg);
             }
             first = false;
         }
