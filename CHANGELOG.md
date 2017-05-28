@@ -1,5 +1,7 @@
 # Inlein News – history of user-visible changes
 
+## 0.3.0 / ???
+
 ## 0.2.0 / 2017-05-28
 
 * Added support for `:file-deps` (Jean Niklas L'orange)

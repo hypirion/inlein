@@ -1,4 +1,4 @@
-(defproject inlein/daemon "0.2.0"
+(defproject inlein/daemon "0.3.0-SNAPSHOT"
   :description "The Inlein daemon"
   :url "https://github.com/hyPiRion/inlein"
   :license {:name "Eclipse Public License"
