@@ -36,6 +36,7 @@ public final class Run extends Task {
             file = fileList.get(0); // == args[0]
         } else {
             Path tmp = Files.createTempFile("inlein-file", ".clj");
+            tmp.toFile().deleteOnExit();
             try (FileChannel out = FileChannel.open(tmp, StandardOpenOption.WRITE)) {
                 for (String srcFile : fileList) {
                     append(out, Paths.get(srcFile));
