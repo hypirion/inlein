@@ -78,4 +78,31 @@ do_test '("a" "b" "c")'
 testfn=(./deps.clj)
 do_test 'a ab71'
 
+function test_err {
+    local start=''
+    local stop=''
+    local statusCode=0
+    echo "${testfn[@]}"
+    start="$(date +%s%N)"
+    ${testfn[@]}
+    statusCode=$?
+    stop="$(date +%s%N)"
+    printf "Time: %.3f seconds\n" "$(bc -l <<< "( $stop - $start ) / 1000000000.0")"
+    if [ "$statusCode" -eq "0" ]; then
+        err=1
+        echo "ERROR: ${testfn[@]} failed"
+        echo "  Expected nonzero status code, but got zero"
+        echo
+    fi
+}
+
+testfn=(./cyclic/a.clj)
+test_err
+
+testfn=(./cyclic/foo/b.clj)
+test_err
+
+testfn=(./cyclic/self-referential.clj)
+test_err
+
 exit $err
