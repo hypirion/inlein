@@ -20,6 +20,7 @@ inlein=$INLEIN_HOME/inlein
 
 PATH="$INLEIN_HOME:$PATH"
 echo -n 2345 > $INLEIN_HOME/port
+## TODO: ^ Uh.. What is this line for again?
 $inlein --start-daemon
 trap "echo 'Shutting down temporary daemon...'; $inlein --shutdown-daemon; rm -rf $INLEIN_HOME" EXIT
 
@@ -73,5 +74,8 @@ do_test 'nil'
 
 testfn=(./cli-args.clj a b c)
 do_test '("a" "b" "c")'
+
+testfn=(./deps.clj)
+do_test 'a ab71'
 
 exit $err
