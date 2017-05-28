@@ -5,9 +5,7 @@
 #_ 0]
 
 ;; Instead of using Clojure, we can use the Jaunt-lang fork and make a repl out
-;; of it. Remember that most dependencies depend on Clojure, and so you'll
-;; probably have to explicitly exclude org.clojure/clojure for dependencies you
-;; add in.
+;; of it.
 
 '{:dependencies [[org.jaunt-lang/jaunt "1.9.0-RC4"]
                  [reply "0.3.7" :exclusions [net.cgrand/parsley]]
