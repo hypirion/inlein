@@ -126,8 +126,12 @@
       (assoc-nonempty :exclusions (cat-merge :exclusions (reverse params)))))
 
 (defn- convert-maven-dep
-  ([artifact version]
-   (convert-maven-dep nil artifact nil nil version))
+  ([artifact]
+   (convert-maven-dep nil artifact nil nil nil))
+  ([group-or-artifact artifact-or-version]
+   (if (re-matches #"[0-9].*|LATEST|RELEASE" artifact-or-version)
+     (convert-maven-dep nil group-or-artifact nil nil artifact-or-version)
+     (convert-maven-dep group-or-artifact artifact-or-version nil nil nil)))
   ([group artifact version]
    (convert-maven-dep group artifact nil nil version))
   ([group artifact packaging version]
@@ -136,13 +140,13 @@
    (cond-> [(symbol (if group
                       (str group "/" artifact)
                       artifact))
-            version]
+            (c.str/replace (or version "LATEST") \; \,)]
      packaging  (conj :extension packaging)
      classifier (conj :classifier classifier))))
 
 (defn- parse-maven-deps
   [deps-str]
-  (->> (c.str/split (or deps-str "") #";")
+  (->> (c.str/split (or deps-str "") #",")
        (remove empty?)
        (mapv #(apply convert-maven-dep (c.str/split % #":")))))
 

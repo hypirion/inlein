@@ -12,13 +12,17 @@ public final class Repl extends Task {
     private Repl() {
         super("--repl",
               "Runs a clojure repl, optionally running a script and/or loading extra dependencies",
-              "Runs a clojure repl, optionally running a script and/or loading extra dependencies");
+              "Runs a clojure repl, optionally running a script and/or loading extra dependencies.\n" +
+              "Takes arguments: [--deps dep1[,dep2...]] [file [args...]]\n" +
+              "where deps is a comma-separated list of an extended version of maven coordinates:\n" +
+              "group:artifact[:type[:classifier]]:version, where if type and classifier are omitted\n" +
+              "then group and version are also optional, defaulting to the same as artifact and LATEST respectively\n" +
+              "and version ranges use semicolons instead of commas (to avoid conflicting with the separator)\n" +
+              "e.g. org.clojure:clojure, clj-time:0.14.0, org.jclouds:jclouds:jar:jdk17:[2.0.0;2.1)");
     }
 
     private void die() {
-        System.out.println("repl expects [--deps dep1[;dep2...]] [file [args...]]\n" +
-                           "where deps are semicolon-separated maven coordinates (with group optional if type+classifier also omitted)\n" +
-                           "i.e. [group:]artifact[:type[:classifier]]:version (e.g. clj-time:0.14.0 / org.jclouds:jclouds:1.0:jar:jdk15)");
+        System.out.println("repl expects [--deps dep1[,dep2...]] [file [args...]]\n");
         System.exit(1);
     }
 
@@ -29,7 +33,7 @@ public final class Repl extends Task {
             if (args.length < 2) {
                 die();
             }
-            coords += ";" + args[1];
+            coords = args[1] + "," + coords;
             script = 2;
         }
         conn = ServerConnection.ensureConnected(conn);
