@@ -46,9 +46,9 @@
         (throw (ex-info msg {:error msg}))))))
 
 (defn- extract-jvm-opts
-  [params opts]
+  [params extra-deps opts]
   (let [params (deps/add-global-exclusions params)
-        cp-string (deps/classpath-string (:dependencies params)
+        cp-string (deps/classpath-string (concat (:dependencies params) extra-deps)
                                          (select-keys opts [:transfer-listener]))]
     {:jvm-opts (concat (:jvm-opts params ["-XX:+TieredCompilation" "-XX:TieredStopAtLevel=1"])
                        ["-cp" cp-string])}))
@@ -125,16 +125,43 @@
       (assoc-nonempty :jvm-opts (cat-merge :jvm-opts params))
       (assoc-nonempty :exclusions (cat-merge :exclusions (reverse params)))))
 
+(defn- convert-maven-dep
+  ([artifact]
+   (convert-maven-dep nil artifact nil nil nil))
+  ([group-or-artifact artifact-or-version]
+   (if (re-matches #"[0-9].*|LATEST|RELEASE" artifact-or-version)
+     (convert-maven-dep nil group-or-artifact nil nil artifact-or-version)
+     (convert-maven-dep group-or-artifact artifact-or-version nil nil nil)))
+  ([group artifact version]
+   (convert-maven-dep group artifact nil nil version))
+  ([group artifact packaging version]
+   (convert-maven-dep group artifact packaging nil version))
+  ([group artifact packaging classifier version]
+   (cond-> [(symbol (if group
+                      (str group "/" artifact)
+                      artifact))
+            (c.str/replace (or version "LATEST") \; \,)]
+     packaging  (conj :extension packaging)
+     classifier (conj :classifier classifier))))
+
+(defn- parse-maven-deps
+  [deps-str]
+  (->> (c.str/split (or deps-str "") #",")
+       (remove empty?)
+       (mapv #(apply convert-maven-dep (c.str/split % #":")))))
+
 (defn read-script-params
   ([fname]
-   (read-script-params fname {}))
-  ([fname opts]
-   (let [fname (utils/abs-path fname)]
-     (binding [*root* fname]
-       (let [all-params (all-file-params fname)
-             _ (detect-cycles all-params (ordered.set/ordered-set fname))
-             order (toposort all-params fname (ordered.set/ordered-set))
-             params (merge-params (map all-params order))]
-         (-> params
-             (extract-jvm-opts (select-keys opts [:transfer-listener]))
-             (assoc :files (seq order))))))))
+   (read-script-params fname nil {}))
+  ([fname deps opts]
+   (if fname
+     (let [fname (utils/abs-path fname)]
+       (binding [*root* fname]
+         (let [all-params (all-file-params fname)
+               _ (detect-cycles all-params (ordered.set/ordered-set fname))
+               order (toposort all-params fname (ordered.set/ordered-set))
+               params (merge-params (map all-params order))]
+           (-> params
+               (extract-jvm-opts (parse-maven-deps deps) (select-keys opts [:transfer-listener]))
+               (assoc :files (seq order))))))
+     (extract-jvm-opts {} (parse-maven-deps deps) (select-keys opts [:transfer-listener])))))
