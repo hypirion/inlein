@@ -27,7 +27,7 @@ public final class Repl extends Task {
     }
 
     public void run(ServerConnection conn, String[] args) throws Exception {
-        String coords = "reply:0.3.7";
+        String coords = "com.hypirion:inlein-repl:0.1.0";
         int script = 0;
         if (args.length > 0 && "--deps".equals(args[0])) {
             if (args.length < 2) {
