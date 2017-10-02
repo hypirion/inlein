@@ -1,4 +1,4 @@
-(defproject com.hypirion/inlein-repl "0.1.0"
+(defproject com.hypirion/inlein-repl "0.2.0-SNAPSHOT"
   :description "Base repl dependencies for inlein."
   :url "http://inlein.org"
   :license {:name "Eclipse Public License"
