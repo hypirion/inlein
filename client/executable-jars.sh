@@ -7,7 +7,7 @@ if [ $# -ne 1 ]; then
 fi
 
 vsn="$1"
-base=$(dirname $(readlink -f "$0"))
+base=$(dirname "$0")
 jarfile="$base/target/inlein-$vsn.jar"
 
 if [ ! -f "$jarfile" ]; then

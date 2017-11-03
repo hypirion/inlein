@@ -5,7 +5,7 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd)"
 cd $dir/../daemon
 lein uberjar
 mkdir -p ~/.inlein/daemons
-find . -iname '*-standalone.jar' -exec cp -t ~/.inlein/daemons {} \;
+find . -iname '*-standalone.jar' -exec cp {} ~/.inlein/daemons/ \;
 
 cd $dir/../client
 lein uberjar
